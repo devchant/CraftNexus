@@ -1,10 +1,9 @@
 import { Navigation } from "@/components/organisms/Navigation";
 
-export default function Home() {
+export default function Contact() {
   return (
     <div className="">
      <Navigation />
-     {/* <p className="text-red-300"> Hello world :) </p> */}
     </div>
   );
 }
