@@ -10,6 +10,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-ibm-plex-serif: var(--font-ibm-plex-serif);
+  --font-poppins: var(--font-poppins);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,10 +22,9 @@
 }
 
 body {
- padding: 5px;
+  padding: 5px;
   font-family: Arial, Helvetica, sans-serif;
 }
-
 
 .font-inter {
   font-family: var(--font-inter), sans-serif;
