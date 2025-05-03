@@ -1,6 +1,22 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono,Inter } from "next/font/google";
+
 import "./globals.css";
+
+import { IBM_Plex_Serif, Poppins } from 'next/font/google'
+
+const ibmPlexSerif = IBM_Plex_Serif({
+  weight: '600',
+  subsets: ['latin'],
+  variable: '--font-ibm-plex-serif'
+})
+
+const poppins = Poppins({
+  weight: ['400', '600'], // Specify required weights
+  subsets: ['latin'],
+  variable: '--font-poppins'
+})
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${ibmPlexSerif.variable} ${poppins.variable} antialiased`}
       >
         {children}
       </body>
