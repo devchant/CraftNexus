@@ -126,7 +126,7 @@ export default function Footer() {
         {/* Copyright - unchanged */}
         <div className="lg:mt-16 pt-8 mt-10">
           <p className="text-white text-center md:text-left font-poppins text-[16px] font-normal leading-normal tracking-[1.08px]">
-            @2025 | Craft Nexus. All rights reserved.
+            @{new Date().getFullYear()} | Craft Nexus. All rights reserved.
           </p>
         </div>
       </div>
