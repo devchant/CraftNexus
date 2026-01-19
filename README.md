@@ -2,7 +2,7 @@
 
 ## Overview
 
-CraftNexus is a global digital marketplace that enables artisans to sell **handcrafted products** and **educational courses** directly to buyers worldwide. The platform leverages **Stellar’s low-cost payment infrastructure** to provide instant, borderless, and fair payments—without NFTs, speculation, or unnecessary blockchain complexity.
+CraftNexus is a global digital marketplace that enables artisans to sell **handcrafted products** and **educational courses** directly to buyers worldwide. The platform leverages **Stellar’s low-cost payment infrastructure** to provide instant, borderless, and fair payments without unnecessary complexity.
 
 CraftNexus exists to empower creators in emerging markets by removing banking barriers, reducing transaction fees, and giving artisans direct ownership of their income.
 
@@ -12,10 +12,10 @@ CraftNexus exists to empower creators in emerging markets by removing banking ba
 
 Millions of artisans globally face structural barriers:
 
-* Limited access to international banking
-* High cross-border payment fees
-* Dependence on intermediaries that reduce earnings
-* Difficulty monetizing skills digitally
+- Limited access to international banking
+- High cross-border payment fees
+- Dependence on intermediaries that reduce earnings
+- Difficulty monetizing skills digitally
 
 Traditional marketplaces solve distribution but fail at **fair global payments**.
 
@@ -25,10 +25,10 @@ Traditional marketplaces solve distribution but fail at **fair global payments**
 
 CraftNexus provides:
 
-* A unified marketplace for **physical artisan goods** and **digital courses**
-* **USDC-based payments on Stellar** for stability and speed
-* Simple wallets instead of bank accounts
-* A creator-first revenue model
+- A unified marketplace for **physical artisan goods** and **digital courses**
+- **USDC-based payments on Stellar** for stability and speed
+- Simple wallets instead of bank accounts
+- A creator-first revenue model
 
 Blockchain is used strictly where it adds value: **payments and settlement**.
 
@@ -38,31 +38,31 @@ Blockchain is used strictly where it adds value: **payments and settlement**.
 
 ### 1. Artisan Storefronts
 
-* Public artisan profile
-* Product listings (physical goods)
-* Course listings (video, guides, workshops)
-* Pricing displayed in local equivalents
+- Public artisan profile
+- Product listings (physical goods)
+- Course listings (video, guides, workshops)
+- Pricing displayed in local equivalents
 
 ### 2. Course Marketplace
 
-* Pay-to-unlock access
-* On-demand or scheduled content
-* Progress tracking
-* Downloadable resources
+- Pay-to-unlock access
+- On-demand or scheduled content
+- Progress tracking
+- Downloadable resources
 
 ### 3. Payments (Stellar)
 
-* USDC as the primary transaction currency
-* XLM used transparently for network fees
-* Near-instant settlement (~5 seconds)
-* Near-zero transaction costs
+- USDC as the primary transaction currency
+- XLM used transparently for network fees
+- Near-instant settlement (~5 seconds)
+- Near-zero transaction costs
 
 ### 4. Trust & Quality
 
-* Verified artisan profiles
-* Buyer reviews and ratings
-* Purchase history
-* Optional escrow-style release for physical items
+- Verified artisan profiles
+- Buyer reviews and ratings
+- Purchase history
+- Optional escrow-style release for physical items
 
 ---
 
@@ -70,10 +70,10 @@ Blockchain is used strictly where it adds value: **payments and settlement**.
 
 CraftNexus aligns directly with Stellar’s mission to create **equitable access to the global financial system**.
 
-* Low fees enable micro-transactions
-* Stablecoin-native (USDC)
-* Proven use in remittances and fintech
-* Strong support for emerging markets
+- Low fees enable micro-transactions
+- Stablecoin-native (USDC)
+- Proven use in remittances and fintech
+- Strong support for emerging markets
 
 ---
 
@@ -105,20 +105,20 @@ CraftNexus does **not** require smart contracts initially.
 
 Handled off-chain:
 
-* User accounts
-* Product listings
-* Course access
-* Reviews and ratings
+- User accounts
+- Product listings
+- Course access
+- Reviews and ratings
 
 Handled on-chain:
 
-* Payments (USDC transfers)
+- Payments (USDC transfers)
 
 Optional future use of Soroban:
 
-* Automated revenue splits
-* Escrow logic for physical delivery
-* Subscription-based courses
+- Automated revenue splits
+- Escrow logic for physical delivery
+- Subscription-based courses
 
 This approach minimizes risk, complexity, and development time.
 
@@ -126,10 +126,10 @@ This approach minimizes risk, complexity, and development time.
 
 ## Revenue Model
 
-* Platform commission per sale (5–10%)
-* Featured artisan listings
-* Course promotion tools
-* Optional SaaS tools for artisans
+- Platform commission per sale (5–10%)
+- Featured artisan listings
+- Course promotion tools
+- Optional SaaS tools for artisans
 
 ---
 
@@ -137,11 +137,11 @@ This approach minimizes risk, complexity, and development time.
 
 ### Why CraftNexus Fits Stellar Programs
 
-* Real-world payments use case
-* Financial inclusion focus
-* Emerging-market creator economy
-* Stablecoin adoption (USDC)
-* Low-speculation, utility-first design
+- Real-world payments use case
+- Financial inclusion focus
+- Emerging-market creator economy
+- Stablecoin adoption (USDC)
+- Low-speculation, utility-first design
 
 ### Key Narrative for Grants
 
@@ -151,13 +151,15 @@ CraftNexus enables artisans—often excluded from global commerce—to participa
 
 ## MVP Scope
 
-* Artisan profiles
-* Product & course listings
-* USDC payment flow
-* Basic reviews
-* Course delivery
+- Artisan profiles
+- Product & course listings
+- USDC payment flow
+- Basic reviews
+- Course delivery
 
 ---
+
+
 
 ## Vision
 
