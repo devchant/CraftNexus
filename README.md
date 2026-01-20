@@ -127,7 +127,7 @@ CraftNexus aligns directly with Stellar’s mission to create **equitable access
 - USDC payment flow via Stellar network
 - Stellar wallet integration (Freighter)
 - Smart contract escrow for secure payments
-- Basic reviews
+- Basic reviews.
 - Course delivery
 
 ## Stellar Integration & Smart Contracts
