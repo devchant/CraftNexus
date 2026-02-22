@@ -39,24 +39,75 @@ soroban contract build
 
 This will create a WASM file in `target/wasm32-unknown-unknown/release/escrow.wasm`
 
-## Testing (Testnet)
+## Deployment
 
-### Deploy Contract
+### Prerequisites
+
+- [Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup#install-the-soroban-cli) installed.
+- A Stellar account with testnet/mainnet funds.
+
+### Required Secrets
+
+To deploy the contract, you will need:
+- **Source Account Secret Key**: The private key of the account that will deploy and pay for the contract. Keep this secret!
+
+### Automated Deployment (Recommended)
+
+A deployment script is provided in the frontend repository to simplify the process.
 
 ```bash
-# Set network to testnet
+# From the craft-nexus (frontend) directory
+./scripts/deploy-contract.sh [testnet|mainnet] <YOUR_SECRET_KEY>
+```
+
+The script will:
+1. Build the contract.
+2. Deploy the WASM to the specified network.
+3. Output the new Contract ID.
+4. Provide the environment variable entry for the frontend.
+
+### Manual Deployment
+
+#### 1. Setup Network
+
+**Testnet:**
+```bash
 soroban config network add testnet \
   --rpc-url https://soroban-testnet.stellar.org \
   --network-passphrase "Test SDF Network ; September 2015"
+```
 
-# Deploy contract
+**Mainnet:**
+```bash
+soroban config network add mainnet \
+  --rpc-url https://soroban-rpc.mainnet.stellar.org \
+  --network-passphrase "Public Global Stellar Network ; September 2015"
+```
+
+#### 2. Build and Deploy
+
+```bash
+# Build
+soroban contract build
+
+# Deploy
 soroban contract deploy \
   --wasm target/wasm32-unknown-unknown/release/escrow.wasm \
   --source <YOUR_SECRET_KEY> \
-  --network testnet
+  --network <testnet|mainnet>
 ```
 
-### Initialize Contract
+#### 3. Update Environment Variables
+
+After deployment, copy the returned Contract ID and add it to your frontend `.env.local`:
+
+```
+NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS=<CONTRACT_ID>
+```
+
+## Initialization
+
+After deployment, you must initialize an escrow (this is typically done by the frontend application):
 
 ```bash
 soroban contract invoke \
