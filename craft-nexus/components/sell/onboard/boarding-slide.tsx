@@ -18,18 +18,16 @@ export default function OnboardingSlide({
   onNext,
   onSkip,
 }: OnboardingSlideProps) {
+  const isLastSlide = currentIndex === totalSlides - 1;
+
   return (
     <div className="onboarding-wrapper">
       {/* Badge */}
       <div className="onboarding-badge">
         <span className="badge-icon" aria-hidden="true">
-          {/* Simple circle icon matching Figma */}
-            <img
-          src='/badgeicon.png'
-          alt='Badge Icon'
-         
-        />
-         
+          <svg width="18" height="14" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 0L11.5 5.5L17.5 6.5L13 10.5L14.5 16.5L9 13.5L3.5 16.5L5 10.5L0.5 6.5L6.5 5.5L9 0Z" fill="#C4928F" />
+          </svg>
         </span>
         <span className="badge-label">{slide.badge}</span>
       </div>
@@ -39,8 +37,8 @@ export default function OnboardingSlide({
         <Image
           src={slide.illustrationSrc}
           alt={slide.illustrationAlt}
-          width={260}
-          height={260}
+          width={512}
+          height={512}
           priority
           className="illustration-img"
         />
@@ -75,6 +73,7 @@ export default function OnboardingSlide({
             aria-selected={i === currentIndex}
             aria-label={`Slide ${i + 1} of ${totalSlides}`}
             className={`dot ${i === currentIndex ? "dot--active" : ""}`}
+            style={i === currentIndex ? { width: '32px' } : {}}
           />
         ))}
       </div>
@@ -88,13 +87,23 @@ export default function OnboardingSlide({
         >
           {slide.ctaLabel}
         </button>
-        <button
-          className="btn-skip"
-          onClick={onSkip}
-          type="button"
-        >
-          Skip
-        </button>
+        {isLastSlide ? (
+          <button
+            className="btn-secondary"
+            onClick={onSkip} // Assuming skip or secondary action for "Already have account"
+            type="button"
+          >
+            I Already Have an Account
+          </button>
+        ) : (
+          <button
+            className="btn-skip"
+            onClick={onSkip}
+            type="button"
+          >
+            Skip
+          </button>
+        )}
       </div>
 
       <style>{`
@@ -103,8 +112,7 @@ export default function OnboardingSlide({
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
-          padding: 48px 24px 40px;
+          padding: 100px 24px 64px;
           background: #ffffff;
           gap: 0;
         }
@@ -114,22 +122,31 @@ export default function OnboardingSlide({
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 40px;
+          padding: 8px 16px;
+          background: rgba(196, 146, 143, 0.1);
+          border-radius: 9999px;
+          margin-bottom: 24px;
+          order: 3; /* Move below text in original flex but design shows it above dots */
         }
+        
+        /* Re-ordering for Step 3 design */
+        .onboarding-illustration { order: 1; }
+        .onboarding-text { order: 2; }
+        .onboarding-badge { order: 3; }
+        .onboarding-dots { order: 4; }
+        .onboarding-cta { order: 5; }
+
         .badge-icon {
           display: inline-flex;
           align-items: center;
           justify-content: center;
         }
-        .badge-icon img {
-          width: 30px;
-          height: 30px;
-        }
         .badge-label {
-          font-family: 'Georgia', serif;
+          font-family: var(--font-poppins), sans-serif;
           font-size: 14px;
-          color: #5a3e3a;
-          letter-spacing: 0.02em;
+          font-weight: 500;
+          color: #374151;
+          letter-spacing: -0.5px;
         }
 
         /* Illustration */
@@ -138,10 +155,11 @@ export default function OnboardingSlide({
           align-items: center;
           justify-content: center;
           width: 100%;
-          margin-bottom: 40px;
+          margin-bottom: 48px;
         }
         .illustration-img {
-          width: clamp(180px, 60vw, 260px);
+          width: 100%;
+          max-width: 512px;
           height: auto;
           object-fit: contain;
         }
@@ -149,42 +167,43 @@ export default function OnboardingSlide({
         /* Text */
         .onboarding-text {
           text-align: center;
-          margin-bottom: 28px;
+          margin-bottom: 24px;
         }
         .onboarding-title {
-          font-family: 'Georgia', serif;
-          font-size: clamp(26px, 7vw, 32px);
+          font-family: var(--font-poppins), sans-serif;
+          font-size: 48px;
           font-weight: 700;
-          color: #2c1a18;
-          line-height: 1.25;
-          margin: 0 0 12px;
-          letter-spacing: -0.01em;
+          color: #111827;
+          line-height: 48px;
+          margin: 0 0 16px;
+          letter-spacing: -0.5px;
         }
         .onboarding-subtitle {
-          font-family: system-ui, -apple-system, sans-serif;
-          font-size: 14px;
-          color: #8a7572;
-          line-height: 1.6;
-          margin: 0;
-          max-width: 280px;
+          font-family: var(--font-poppins), sans-serif;
+          font-size: 18px;
+          color: #4B5563;
+          line-height: 28px;
+          margin: 0 auto;
+          max-width: 520px;
+          letter-spacing: -0.5px;
         }
 
         /* Dots */
         .onboarding-dots {
           display: flex;
-          gap: 6px;
+          gap: 8px;
           margin-bottom: 32px;
         }
         .dot {
           display: block;
-          width: 20px;
-          height: 4px;
-          border-radius: 2px;
-          background: #e0d0ce;
-          transition: background 0.2s;
+          width: 8px;
+          height: 8px;
+          border-radius: 9999px;
+          background: #D9D9D9;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .dot--active {
-          background: #b07c76;
+          background: #C4928F;
         }
 
         /* CTA */
@@ -192,55 +211,70 @@ export default function OnboardingSlide({
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
           width: 100%;
-          max-width: 320px;
+          max-width: 624px;
         }
         .btn-primary {
-          width: 100%;
-          padding: 15px 24px;
+          width: 352px;
+          height: 60px;
           background: #C4928F;
           color: #ffffff;
           border: none;
           border-radius: 16px;
-          font-family: system-ui, -apple-system, sans-serif;
-          font-size: 15px;
-          font-weight: 600;
+          font-family: var(--font-outfit), sans-serif;
+          font-size: 18px;
+          font-weight: 400;
           cursor: pointer;
-          transition: background 0.18s, transform 0.1s;
-          letter-spacing: 0.01em;
+          transition: all 0.2s;
+          letter-spacing: -0.5px;
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 10px 15px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .btn-primary:hover {
-          background: #9c6b65;
+          background: #b07c76;
+          transform: translateY(-1px);
+          box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15), 0px 12px 20px rgba(0, 0, 0, 0.15);
         }
         .btn-primary:active {
-          transform: scale(0.98);
+          transform: translateY(0);
         }
-        .btn-skip {
+        .btn-skip, .btn-secondary {
           background: none;
           border: none;
-          color: #8a7572;
-          font-family: system-ui, -apple-system, sans-serif;
-          font-size: 14px;
+          color: #4B5563;
+          font-family: var(--font-poppins), sans-serif;
+          font-size: 16px;
+          font-weight: 500;
           cursor: pointer;
-          padding: 4px 12px;
+          padding: 12px;
           transition: color 0.15s;
+          letter-spacing: -0.5px;
         }
-        .btn-skip:hover {
-          color: #5a3e3a;
+        .btn-skip:hover, .btn-secondary:hover {
+          color: #111827;
         }
 
         /* Responsive */
-        @media (min-width: 480px) {
+        @media (max-width: 768px) {
           .onboarding-wrapper {
-            padding: 64px 32px 48px;
+            padding: 60px 24px;
           }
-        }
-        @media (min-width: 768px) {
-          .onboarding-wrapper {
-            max-width: 420px;
-            margin: 0 auto;
-            min-height: 100vh;
+          .onboarding-title {
+            font-size: 32px;
+            line-height: 36px;
+          }
+          .onboarding-subtitle {
+            font-size: 16px;
+            line-height: 24px;
+          }
+          .btn-primary {
+            width: 100%;
+          }
+          .illustration-img {
+            max-width: 320px;
           }
         }
       `}</style>
