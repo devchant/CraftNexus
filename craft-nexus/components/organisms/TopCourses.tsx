@@ -37,7 +37,17 @@ function CourseCard({
   price,
   image,
   hours,
-}: any) {
+}: {
+  title: string;
+  by: string;
+  location: string;
+  description: string;
+  students: number;
+  rating: string;
+  price: string;
+  image: string;
+  hours: string;
+}) {
   return (
     <div className="font-inter rounded-[20px] bg-[#D6B3B11A] max-w-[454px] text-black overflow-hidden">
       <div className="relative">

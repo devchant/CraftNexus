@@ -3,11 +3,7 @@
  * Handles wallet connections and account management
  */
 
-import { 
-  isConnected, 
-  requestAccess,
-  getAddress
-} from "@stellar/freighter-api";
+import * as FreighterApi from "@stellar/freighter-api";
 
 export interface WalletAccount {
   publicKey: string;
@@ -25,18 +21,13 @@ export async function isFreighterAvailable(): Promise<boolean> {
     
     // Use the official API method - it handles detection internally
     // This is the recommended way per Freighter documentation
-    const connected = await Promise.race([
-      isConnected(),
-      new Promise<{ isConnected: boolean }>((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 3000)
-      )
-    ]);
+    const connected = await FreighterApi.isConnected();
     
     console.log("Freighter: API check result:", connected);
-    return connected.isConnected;
+    return connected;
   } catch (error) {
     // If isConnected() fails, Freighter is likely not installed
-    // But we'll still allow connection attempts (requestAccess might work)
+    // But we'll still allow connection attempts (getPublicKey might work)
     console.warn("Freighter: isConnected() failed:", error);
     return false;
   }
@@ -69,55 +60,23 @@ export async function connectFreighterWallet(): Promise<WalletAccount | null> {
     // Try to check if connected first (optional check)
     let isConnectedCheck = false;
     try {
-      const connectedStatus = await Promise.race([
-        isConnected(),
-        new Promise<{ isConnected: boolean }>((_, reject) =>
-          setTimeout(() => reject(new Error("Check timeout")), 2000)
-        )
-      ]);
-      isConnectedCheck = connectedStatus.isConnected;
+      isConnectedCheck = await FreighterApi.isConnected();
       console.log("Freighter: isConnected check:", isConnectedCheck);
     } catch (checkError) {
-      console.warn("Freighter: isConnected check failed, but continuing to requestAccess:", checkError);
-      // Continue anyway - requestAccess might still work
+      console.warn("Freighter: isConnected check failed, but continuing to getPublicKey:", checkError);
+      // Continue anyway - getPublicKey might still work
     }
 
-    // Request access from user (this is the primary method - it will work if Freighter is installed)
+    // Get public key from user (this is the primary method - it will work if Freighter is installed)
     // This will prompt the user if not already granted, and will throw an error if Freighter is not installed
     console.log("Freighter: Requesting access...");
     
-    const access = await Promise.race([
-      requestAccess(),
-      new Promise<{ address?: string; error?: string }>((_, reject) =>
-        setTimeout(() => reject(new Error("Request access timeout. Freighter may not be installed or is not responding.")), 15000)
-      )
-    ]);
+    const publicKey = await FreighterApi.getPublicKey();
     
-    console.log("Freighter: Access response:", access);
-    
-    // Handle errors from requestAccess
-    if (access.error) {
-      // Check for common error messages
-      if (access.error.includes("not installed") || access.error.includes("not found")) {
-        throw new Error("Freighter extension not installed. Please install it from https://freighter.app and refresh this page.");
-      }
-      if (access.error.includes("denied") || access.error.includes("rejected")) {
-        throw new Error("Access denied. Please allow Freighter to connect to this site.");
-      }
-      if (access.error.includes("locked") || access.error.includes("unlock")) {
-        throw new Error("Please unlock your Freighter wallet and try again.");
-      }
-      throw new Error(access.error);
-    }
-
-    if (!access.address) {
-      throw new Error("Failed to get wallet address. Please make sure your Freighter wallet is unlocked and try again.");
-    }
-
-    console.log("Freighter: Successfully connected:", access.address);
+    console.log("Freighter: Successfully connected:", publicKey);
 
     return {
-      publicKey: access.address,
+      publicKey,
       isConnected: true,
     };
   } catch (error) {
@@ -144,17 +103,13 @@ export async function connectFreighterWallet(): Promise<WalletAccount | null> {
  */
 export async function getCurrentAddress(): Promise<string | null> {
   try {
-    const connected = await isConnected();
-    if (!connected.isConnected) {
+    const connected = await FreighterApi.isConnected();
+    if (!connected) {
       return null;
     }
 
-    const addressObj = await getAddress();
-    if (addressObj.error) {
-      return null;
-    }
-
-    return addressObj.address || null;
+    const publicKey = await FreighterApi.getPublicKey();
+    return publicKey;
   } catch (error) {
     console.error("Failed to get current address:", error);
     return null;
