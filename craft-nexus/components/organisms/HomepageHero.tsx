@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const stats = [
     { value: "30K", label: "Students" },
@@ -32,18 +33,20 @@ export default function HeroSection() {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 sm:gap-6 md:gap-10">
-                        <button
+                        <Link
+                            href="/market"
+                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg lg:text-2xl font-medium text-white bg-[#C4928F] hover:opacity-85 transition-opacity cursor-pointer inline-block text-center"
                             style={{ boxShadow: "5px 5px 4px 0px #00000040" }}
-                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg lg:text-2xl font-medium text-white bg-[#C4928F] hover:opacity-85 transition-opacity"
                         >
                             Buy Handcraft
-                        </button>
-                        <button
-                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg lg:text-2xl font-medium text-white bg-[#517A77] hover:opacity-85 transition-opacity"
+                        </Link>
+                        <Link 
+                            href="/sell/onboarding"
+                            className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base md:text-lg lg:text-2xl font-medium text-white bg-[#517A77] hover:opacity-85 transition-opacity cursor-pointer inline-block text-center"
                             style={{ boxShadow: "5px 5px 4px 0px #00000040" }}
                         >
                             Sell Handcraft
-                        </button>
+                        </Link>
                     </div>
 
                     {/* Stats */}
