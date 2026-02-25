@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Outfit } from "next/font/google";
+
 import "./globals.css";
 
 import { IBM_Plex_Serif, Poppins } from "next/font/google";
@@ -12,9 +13,14 @@ const ibmPlexSerif = IBM_Plex_Serif({
 });
 
 const poppins = Poppins({
-  weight: ["400", "600"], // Specify required weights
+  weight: ["400", "500", "600", "700"], // Specify required weights
   subsets: ["latin"],
   variable: "--font-poppins",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
 });
 
 const geistSans = Geist({
@@ -49,7 +55,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${ibmPlexSerif.variable} ${poppins.variable} antialiased`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} ${ibmPlexSerif.variable} ${poppins.variable} ${outfit.variable} antialiased`}
       >
         <RouteWrapper>{children}</RouteWrapper>
       </body>

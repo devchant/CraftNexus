@@ -20,18 +20,18 @@ export const ONBOARDING_SLIDES: OnboardingSlideData[] = [
   {
     badge: "Sell & Learn",
     illustrationAlt: "Artisan showcasing products",
-    illustrationSrc: "/illustrations/artisan-showcase.svg",
+    illustrationSrc: "/illustration/artisan-showcase.svg",
     title: "Reach Thousands\nOf Buyers",
     subtitle: "List your handmade items and connect\nwith customers worldwide.",
     ctaLabel: "Next",
   },
-  // Slide 3 placeholder — fill in when implementing issue #33
+  // Slide 3 - Artisans Complete
   {
-    badge: "Sell & Learn",
+    badge: "10K+ Creators Joined",
     illustrationAlt: "Artisan earning income",
-    illustrationSrc: "/illustrations/artisan-earning.svg",
-    title: "Grow Your\nCraft Business",
-    subtitle: "Track sales, manage orders, and\ngrow your creative business.",
-    ctaLabel: "Start Selling",
+    illustrationSrc: "/artisan-earning.svg",
+    title: "Sell Your Craft.\nEarn More.",
+    subtitle: "Create your shop, reach customers worldwide, and turn your passion into income.",
+    ctaLabel: "Next",
   },
 ];
