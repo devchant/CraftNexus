@@ -4,7 +4,7 @@
  */
 
 import {
-  Server,
+  Horizon,
   Asset,
   Operation,
   TransactionBuilder,
@@ -12,11 +12,9 @@ import {
   Networks,
   BASE_FEE,
   Keypair,
-  xdr,
 } from "@stellar/stellar-sdk";
 import {
   HORIZON_URL,
-  NETWORK_PASSPHRASE,
   USDC_ISSUER,
   STELLAR_NETWORK,
   PLATFORM_COMMISSION_PERCENT,
@@ -39,12 +37,12 @@ export interface EscrowPaymentParams {
 }
 
 export class StellarPaymentService {
-  private server: Server;
+  private server: Horizon.Server;
   private network: Networks;
 
   constructor() {
     this.network = STELLAR_NETWORK === "PUBLIC" ? Networks.PUBLIC : Networks.TESTNET;
-    this.server = new Server(HORIZON_URL);
+    this.server = new Horizon.Server(HORIZON_URL);
   }
 
   /**
@@ -62,24 +60,32 @@ export class StellarPaymentService {
 
       // Build transaction
       const transaction = new TransactionBuilder(senderAccount, {
-        fee: BASE_FEE,
+        fee: BASE_FEE.toString(),
         networkPassphrase: this.network,
-      })
-        .addOperation(
-          Operation.payment({
-            destination: recipientPublicKey,
-            asset: usdcAsset,
-            amount: amount,
-          })
-        )
-        .addMemo(orderId ? Memo.text(`ORDER:${orderId}`) : memo ? Memo.text(memo) : Memo.none())
-        .setTimeout(30)
-        .build();
+      });
 
-      transaction.sign(senderKeypair);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transaction.addOperation(Operation.payment({
+        destination: recipientPublicKey,
+        asset: usdcAsset,
+        amount: amount,
+      }) as any);
+
+      if (orderId) {
+        transaction.addMemo(Memo.text(`ORDER:${orderId}`));
+      } else if (memo) {
+        transaction.addMemo(Memo.text(memo));
+      } else {
+        transaction.addMemo(Memo.none());
+      }
+
+      transaction.setTimeout(30);
+      const builtTx = transaction.build();
+      builtTx.sign(senderKeypair);
 
       // Submit transaction
-      const result = await this.server.submitTransaction(transaction);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await this.server.submitTransaction(builtTx as any);
       return result.hash;
     } catch (error) {
       console.error("Payment failed:", error);
@@ -109,37 +115,39 @@ export class StellarPaymentService {
       const sellerAmount = (amountNum - parseFloat(commissionAmount)).toFixed(7);
 
       // Build transaction with multiple payments
-      const operations: Operation[] = [
-        Operation.payment({
-          destination: sellerPublicKey,
-          asset: usdcAsset,
-          amount: sellerAmount,
-        }),
-      ];
+      const transactionBuilder = new TransactionBuilder(buyerAccount, {
+        fee: BASE_FEE.toString(),
+        networkPassphrase: this.network,
+      });
+
+      // Add seller payment
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transactionBuilder.addOperation(Operation.payment({
+        destination: sellerPublicKey,
+        asset: usdcAsset,
+        amount: sellerAmount,
+      }) as any);
 
       // Add commission payment if platform wallet is configured
       if (PLATFORM_COMMISSION_WALLET) {
-        operations.push(
-          Operation.payment({
-            destination: PLATFORM_COMMISSION_WALLET,
-            asset: usdcAsset,
-            amount: commissionAmount,
-          })
-        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        transactionBuilder.addOperation(Operation.payment({
+          destination: PLATFORM_COMMISSION_WALLET,
+          asset: usdcAsset,
+          amount: commissionAmount,
+        }) as any);
       }
 
-      const transaction = new TransactionBuilder(buyerAccount, {
-        fee: BASE_FEE,
-        networkPassphrase: this.network,
-      })
-        .addOperation(...operations)
+      const transaction = transactionBuilder
         .addMemo(Memo.text(`ORDER:${orderId}`))
         .setTimeout(30)
         .build();
 
-      transaction.sign(buyerKeypair);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      transaction.sign(buyerKeypair as any);
 
-      const result = await this.server.submitTransaction(transaction);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await this.server.submitTransaction(transaction as any);
       return {
         paymentHash: result.hash,
       };
@@ -160,12 +168,12 @@ export class StellarPaymentService {
       const usdcAsset = new Asset("USDC", USDC_ISSUER);
 
       const balance = account.balances.find(
-        (b: any) =>
+        (b: { asset_code?: string; asset_issuer?: string; balance?: string }) =>
           b.asset_code === "USDC" &&
           b.asset_issuer === USDC_ISSUER
       );
 
-      return balance ? balance.balance : "0";
+      return balance ? (balance.balance ?? "0") : "0";
     } catch (error) {
       console.error("Failed to get balance:", error);
       return "0";
