@@ -41,9 +41,9 @@ fi
 # 1. Build the contract
 echo "🛠️  Building contract..."
 cd "$CONTRACT_DIR"
-soroban contract build
+stellar contract build
 
-WASM_PATH="target/wasm32-unknown-unknown/release/escrow.wasm"
+WASM_PATH="target/wasm32-unknown-unknown/release/craft_nexus_contract.wasm"
 if [ ! -f "$WASM_PATH" ]; then
     echo "❌ Error: WASM file not found at $WASM_PATH"
     exit 1
@@ -51,7 +51,7 @@ fi
 
 # 2. Deploy the contract
 echo "🌐 Deploying to Stellar $NETWORK..."
-CONTRACT_ID=$(soroban contract deploy \
+CONTRACT_ID=$(stellar contract deploy \
     --wasm "$WASM_PATH" \
     --source "$SECRET_KEY" \
     --rpc-url "$RPC_URL" \

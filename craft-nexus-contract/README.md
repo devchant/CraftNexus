@@ -18,10 +18,10 @@ This contract handles escrow functionality for marketplace transactions:
 
 ## Installation
 
-### Install Soroban CLI
+### Install Stellar CLI
 
 ```bash
-cargo install --locked --version 21.0.0 soroban-cli
+cargo install --locked stellar-cli
 ```
 
 ### Install Rust Target
@@ -34,16 +34,16 @@ rustup target add wasm32-unknown-unknown
 
 ```bash
 cd craft-nexus-contract
-soroban contract build
+stellar contract build
 ```
 
-This will create a WASM file in `target/wasm32-unknown-unknown/release/escrow.wasm`
+This will create a WASM file in `target/wasm32-unknown-unknown/release/craft_nexus_contract.wasm`
 
 ## Deployment
 
 ### Prerequisites
 
-- [Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup#install-the-soroban-cli) installed.
+- [Stellar CLI](https://developers.stellar.org/docs/build/smart-contracts/getting-started/setup#install-the-stellar-cli) installed.
 - A Stellar account with testnet/mainnet funds.
 
 ### Required Secrets
@@ -72,29 +72,25 @@ The script will:
 
 **Testnet:**
 ```bash
-soroban config network add testnet \
-  --rpc-url https://soroban-testnet.stellar.org \
-  --network-passphrase "Test SDF Network ; September 2015"
+stellar network add --rpc-url https://soroban-testnet.stellar.org:443 --network-passphrase "Test SDF Network ; September 2015" testnet
 ```
 
 **Mainnet:**
 ```bash
-soroban config network add mainnet \
-  --rpc-url https://soroban-rpc.mainnet.stellar.org \
-  --network-passphrase "Public Global Stellar Network ; September 2015"
+stellar network add --rpc-url https://soroban-rpc.mainnet.stellar.org:443 --network-passphrase "Public Global Stellar Network ; September 2015" mainnet
 ```
 
 #### 2. Build and Deploy
 
 ```bash
 # Build
-soroban contract build
+stellar contract build
 
 # Deploy
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/escrow.wasm \
-  --source <YOUR_SECRET_KEY> \
-  --network <testnet|mainnet>
+stellar contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/craft_nexus_contract.wasm \
+  --source <YOUR_IDENTITY_NAME_OR_SECRET_KEY> \
+  --network testnet
 ```
 
 #### 3. Update Environment Variables
@@ -110,9 +106,9 @@ NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS=<CONTRACT_ID>
 After deployment, you must initialize an escrow (this is typically done by the frontend application):
 
 ```bash
-soroban contract invoke \
+stellar contract invoke \
   --id <CONTRACT_ID> \
-  --source <YOUR_SECRET_KEY> \
+  --source <YOUR_IDENTITY_NAME_OR_SECRET_KEY> \
   --network testnet \
   -- \
   create_escrow \

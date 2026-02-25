@@ -42,19 +42,19 @@ npm run dev
 # Install Rust first if needed
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Install Soroban CLI
-cargo install --locked --version 21.0.0 soroban-cli
+# Install Stellar CLI
+cargo install --locked stellar-cli
 
 # Add WASM target
 rustup target add wasm32-unknown-unknown
 
 # Build contract
 cd ../craft-nexus-contract
-soroban contract build
+stellar contract build
 
 # Deploy (replace YOUR_SECRET_KEY with testnet account secret)
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/escrow.wasm \
+stellar contract deploy \
+  --wasm target/wasm32-unknown-unknown/release/craft_nexus_contract.wasm \
   --source YOUR_SECRET_KEY \
   --network testnet
 
