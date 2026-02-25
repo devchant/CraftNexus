@@ -1,0 +1,20 @@
+# Stellar Network Configuration for CraftNexus
+
+NETWORK_PASSPHRASE = "Test SDF Network ; September 2015"
+HORIZON_URL = "https://horizon-testnet.stellar.org"
+SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org:443"
+
+[QUOTES]
+ASSET_CODE = "USDC"
+ISSUER = "GBBD67V63DU7P3WGZ2SQEKBWAYD5S64Y6L2SGVVQQZNCZ7Y7XNR22TH3" # Random/Testnet USDC
+
+[[CURRENCIES]]
+code = "USDC"
+issuer = "GBBD67V63DU7P3WGZ2SQEKBWAYD5S64Y6L2SGVVQQZNCZ7Y7XNR22TH3"
+display_decimals = 7
+name = "USD Coin"
+
+[DOCUMENTATION]
+ORG_NAME = "CraftNexus"
+ORG_URL = "https://craftnexus.com"
+ORG_DESCRIPTION = "Secure Escrow Service on Stellar"
