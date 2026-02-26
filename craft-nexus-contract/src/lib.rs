@@ -1,20 +1,15 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, symbol_short, vec, Address, Env, Symbol, Vec,
-    token, Map, BytesN,
+    contract, contractimpl, contracttype, symbol_short, Address, Env, Symbol,
+    token,
 };
 
+mod test;
+
 const ESCROW: Symbol = symbol_short!("ESCROW");
-const BUYER: Symbol = symbol_short!("BUYER");
-const SELLER: Symbol = symbol_short!("SELLER");
-const TOKEN: Symbol = symbol_short!("TOKEN");
-const AMOUNT: Symbol = symbol_short!("AMOUNT");
-const STATUS: Symbol = symbol_short!("STATUS");
-const CREATED_AT: Symbol = symbol_short!("CREATED");
-const RELEASE_WINDOW: Symbol = symbol_short!("WINDOW");
 
 #[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum EscrowStatus {
     Pending = 0,
     Released = 1,
@@ -59,6 +54,12 @@ impl EscrowContract {
     ) -> Escrow {
         buyer.require_auth();
         
+        // Validate amount is positive
+        assert!(amount > 0, "Amount must be positive");
+        
+        // Validate buyer and seller are different
+        assert!(buyer != seller, "Buyer and seller must be different");
+        
         // Default to 7 days if not specified
         let window = release_window.unwrap_or(604800u64);
         let created_at = env.ledger().timestamp();
@@ -90,7 +91,6 @@ impl EscrowContract {
     /// # Arguments
     /// * `order_id` - Order identifier
     pub fn release_funds(env: Env, order_id: u32) {
-        let buyer: Address = env.invoker();
         let mut escrow: Escrow = env
             .storage()
             .persistent()
@@ -98,10 +98,7 @@ impl EscrowContract {
             .expect("Escrow not found");
 
         // Only buyer can release funds
-        assert!(
-            escrow.buyer == buyer,
-            "Only buyer can release funds"
-        );
+        escrow.buyer.require_auth();
         
         assert!(
             escrow.status == EscrowStatus::Pending,

@@ -12,6 +12,7 @@
   --font-mono: var(--font-geist-mono);
   --font-ibm-plex-serif: var(--font-ibm-plex-serif);
   --font-poppins: var(--font-poppins);
+  --font-outfit: var(--font-outfit);
 }
 
 @media (prefers-color-scheme: dark) {

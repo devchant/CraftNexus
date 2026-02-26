@@ -188,6 +188,60 @@ See [craft-nexus-contract/README.md](craft-nexus-contract/README.md) for deploym
 
 ---
 
+## Escrow Contract Integration (Soroban)
+
+CraftNexus includes a safe frontend-to-contract invoke path for the Soroban escrow contract.
+
+### Setting Contract ID
+
+Add the contract address to your `.env.local` file:
+
+```env
+NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS=CBXXXXXXXXXXXXXXXX
+```
+
+This variable is **optional** for development. The app will work without it, returning a controlled error message instead of crashing.
+
+### Simulation Mode
+
+The `invokeEscrowCreate` function in [`lib/stellar/contracts.ts`](craft-nexus/lib/stellar/contracts.ts) provides safe contract invocation:
+
+- **Simulation first**: Uses `simulateTransaction` to preview the transaction before execution
+- **Error handling**: Returns structured results `{ success: boolean; data?: any; error?: string }` - never throws raw errors
+- **Safe defaults**: Works even if contract address is not configured
+
+Example usage:
+
+```typescript
+import { invokeEscrowCreate } from '@/lib/stellar/contracts';
+
+const result = await invokeEscrowCreate({
+  buyer: 'GBXXXX...',
+  seller: 'GBXXXX...',
+  amount: '100.00', // USDC amount
+});
+
+if (!result.success) {
+  console.error(result.error); // "Escrow contract address not configured"
+  return;
+}
+
+// Access simulation result
+console.log(result.data);
+```
+
+### Switching to Real Testnet Invocation
+
+To enable real contract calls:
+
+1. Deploy the escrow contract to testnet (see [Deployment](#step-5-deploy-smart-contract-optional))
+2. Copy the deployed contract address to `.env.local`
+3. The invoke function will automatically use the real RPC and contract
+
+**Note**: Simulation prevents accidental writes during testing. Modify the code to submit transactions when ready for production.
+
+---
+
 
 # Payments Architecture & Trust Model
 
