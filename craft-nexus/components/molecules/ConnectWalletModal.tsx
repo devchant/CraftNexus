@@ -1,6 +1,6 @@
 "use client";
 
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaCheckCircle, FaSignOutAlt } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { 
   connectFreighterWallet, 
@@ -33,12 +33,16 @@ interface ConnectWalletModalProps {
   isOpen: boolean;
   handleClose: () => void;
   onConnected?: (publicKey: string) => void;
+  connectedAddress?: string | null;
+  onDisconnect?: () => void;
 }
 
 export const ConnectWalletModal = ({
   isOpen,
   handleClose,
   onConnected,
+  connectedAddress,
+  onDisconnect,
 }: ConnectWalletModalProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,100 +105,125 @@ export const ConnectWalletModal = ({
     }
   };
 
+  const shortenAddress = (address: string) => {
+    if (!address) return "";
+    return `${address.slice(0, 8)}...${address.slice(-8)}`;
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,.5)] backdrop-blur-[4px] bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-xl font-bold">Connect Stellar Wallet</h2>
+            <h2 className="text-xl font-bold text-gray-900 font-outfit">Connect Stellar Wallet</h2>
             <p className="text-sm text-gray-500 mt-1">
-              Connect your Stellar wallet to buy and sell on CraftNexus
+              Connect your wallet to interact with CraftNexus
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700 cursor-pointer"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
             disabled={isConnecting}
           >
             <FaTimes className="text-xl" />
           </button>
         </div>
 
+        {connectedAddress && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-100 rounded-xl relative overflow-hidden">
+            <div className="flex items-center gap-3 relative z-10">
+              <FaCheckCircle className="text-green-500 text-xl flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">Currently Connected</p>
+                <p className="text-sm font-mono text-green-900 truncate mt-0.5">{shortenAddress(connectedAddress)}</p>
+              </div>
+              <button
+                onClick={() => {
+                  onDisconnect?.();
+                  handleClose();
+                }}
+                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
+                title="Disconnect Wallet"
+              >
+                <FaSignOutAlt />
+                <span className="hidden sm:inline">Disconnect</span>
+              </button>
+            </div>
+            <div className="absolute -right-4 -bottom-4 text-green-100 opacity-50 pointer-events-none">
+              <FaCheckCircle size={80} />
+            </div>
+          </div>
+        )}
+
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
+            <div className="text-xs text-red-600 font-medium whitespace-pre-line">{error}</div>
           </div>
         )}
 
         <div className="space-y-3">
           {stellarWallets.map((wallet) => {
-            // Allow Freighter connection even if initial check failed (user can try)
             const isAvailable = wallet.id === "freighter" && freighterAvailable;
             const isDisabled = wallet.disabled || (wallet.id !== "freighter" && !isAvailable) || isConnecting;
 
             return (
               <button
                 key={wallet.id}
-                className={`flex items-start gap-4 w-full p-4 border rounded-lg transition-colors ${
+                className={`flex items-center gap-4 w-full p-4 border rounded-xl transition-all ${
                   isDisabled
-                    ? "border-gray-200 bg-gray-50 cursor-not-allowed opacity-50"
-                    : "border-gray-200 hover:bg-gray-50 hover:border-blue-300"
+                    ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-60"
+                    : "border-gray-200 hover:bg-gray-50 hover:border-blue-400 hover:shadow-md group"
                 }`}
                 onClick={() => !isDisabled && handleConnect(wallet.id)}
                 disabled={isDisabled}
               >
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{wallet.name}</span>
+                    <span className="font-bold text-gray-900">{wallet.name}</span>
                     {wallet.recommended && (
-                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">
                         Recommended
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">{wallet.description}</p>
                   {wallet.id === "freighter" && !freighterAvailable && (
-                    <p className="text-xs text-orange-600 mt-1">
-                      Freighter may not be detected. You can still try connecting.
+                    <p className="text-[10px] text-orange-600 mt-1 font-medium">
+                      Extension not detected in browser
                     </p>
                   )}
                 </div>
-                {isConnecting && wallet.id === "freighter" && (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                {isConnecting && wallet.id === "freighter" ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+                ) : (
+                  <div className="w-2 h-2 rounded-full bg-gray-200 group-hover:bg-blue-400 transition-colors"></div>
                 )}
               </button>
             );
           })}
         </div>
 
-        {!freighterAvailable && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800 mb-2">
-              <strong>Freighter not detected</strong>
-            </p>
-            <p className="text-xs text-blue-700 mb-2">
-              If you just installed Freighter, please:
-            </p>
-            <ol className="text-xs text-blue-700 list-decimal list-inside mb-2 space-y-1">
-              <li>Refresh this page</li>
-              <li>Make sure the extension is enabled</li>
-              <li>Try connecting again</li>
-            </ol>
-            <a
-              href="https://freighter.app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-blue-600 hover:underline font-medium"
-            >
-              Install Freighter Wallet →
-            </a>
+        {!freighterAvailable && !connectedAddress && (
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+            <div className="flex flex-col gap-2 text-xs text-blue-800">
+              <p className="font-bold">Freighter not detected</p>
+              <p>If you just installed Freighter, please refresh this page and make sure it's enabled.</p>
+              <a
+                href="https://freighter.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-blue-600 hover:underline font-bold mt-1"
+              >
+                Install Freighter Wallet →
+              </a>
+            </div>
           </div>
         )}
 
-        <p className="text-xs text-gray-500 mt-4 text-center">
-          By connecting a wallet, you agree to our Terms of Service and Privacy Policy
+        <p className="text-[10px] text-gray-400 mt-6 text-center leading-relaxed">
+          By connecting a wallet, you agree to our <span className="underline cursor-pointer">Terms</span> and <span className="underline cursor-pointer">Privacy Policy</span>
         </p>
       </div>
     </div>
