@@ -1,4 +1,3 @@
-
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String, Symbol};
 
 #[cfg(test)]
@@ -21,10 +20,10 @@ pub enum DataKey {
 #[contracttype]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum UserRole {
-    None = 0,      // User has not onboarded
-    Buyer = 1,     // Can purchase items
-    Artisan = 2,   // Can sell items and create escrow
-    Admin = 3,     // Platform administrator
+    None = 0,    // User has not onboarded
+    Buyer = 1,   // Can purchase items
+    Artisan = 2, // Can sell items and create escrow
+    Admin = 3,   // Platform administrator
 }
 
 /// Onboarding status for users
@@ -105,9 +104,7 @@ impl OnboardingContract {
         };
 
         // Store the configuration
-        env.storage()
-            .persistent()
-            .set(&DataKey::Config, &config);
+        env.storage().persistent().set(&DataKey::Config, &config);
 
         let admin_username = String::from_str(&env, "admin");
         let normalized = normalize_username(&env, &admin_username);
@@ -145,12 +142,7 @@ impl OnboardingContract {
     /// - Username already taken (case-insensitive)
     /// - Username too short or too long
     /// - Invalid role specified
-    pub fn onboard_user(
-        env: Env,
-        user: Address,
-        username: String,
-        role: UserRole,
-    ) -> UserProfile {
+    pub fn onboard_user(env: Env, user: Address, username: String, role: UserRole) -> UserProfile {
         user.require_auth();
 
         // Validate role is valid (only Buyer or Artisan for self-onboarding)
@@ -160,7 +152,8 @@ impl OnboardingContract {
         );
 
         // Get configuration
-        let config: OnboardingConfig = env.storage()
+        let config: OnboardingConfig = env
+            .storage()
             .persistent()
             .get(&DataKey::Config)
             .expect("Contract not initialized");
@@ -180,7 +173,8 @@ impl OnboardingContract {
         );
 
         // Check if user already onboarded
-        let existing: Option<UserProfile> = env.storage()
+        let existing: Option<UserProfile> = env
+            .storage()
             .persistent()
             .get(&DataKey::UserProfile(user.clone()));
 
@@ -244,7 +238,8 @@ impl OnboardingContract {
     pub fn get_user_by_username(env: Env, username: String) -> UserProfile {
         let normalized = normalize_username(&env, &username);
 
-        let owner: Address = env.storage()
+        let owner: Address = env
+            .storage()
             .persistent()
             .get(&DataKey::Username(normalized))
             .expect("Username not found");
@@ -291,7 +286,8 @@ impl OnboardingContract {
     /// # Returns
     /// UserRole if user exists, UserRole::None otherwise
     pub fn get_user_role(env: Env, user: Address) -> UserRole {
-        match env.storage()
+        match env
+            .storage()
             .persistent()
             .get::<DataKey, UserProfile>(&DataKey::UserProfile(user))
         {
@@ -309,13 +305,10 @@ impl OnboardingContract {
     /// # Reverts if
     /// - Caller is not admin
     /// - User not found
-    pub fn update_user_role(
-        env: Env,
-        user: Address,
-        new_role: UserRole,
-    ) -> UserProfile {
+    pub fn update_user_role(env: Env, user: Address, new_role: UserRole) -> UserProfile {
         // Get config to verify admin
-        let config: OnboardingConfig = env.storage()
+        let config: OnboardingConfig = env
+            .storage()
             .persistent()
             .get(&DataKey::Config)
             .expect("Contract not initialized");
@@ -324,7 +317,8 @@ impl OnboardingContract {
         config.platform_admin.require_auth();
 
         // Get existing profile
-        let mut profile: UserProfile = env.storage()
+        let mut profile: UserProfile = env
+            .storage()
             .persistent()
             .get(&DataKey::UserProfile(user.clone()))
             .expect("User not found");
@@ -355,7 +349,8 @@ impl OnboardingContract {
     /// - User not found
     pub fn verify_user(env: Env, user: Address) -> UserProfile {
         // Get config to verify admin
-        let config: OnboardingConfig = env.storage()
+        let config: OnboardingConfig = env
+            .storage()
             .persistent()
             .get(&DataKey::Config)
             .expect("Contract not initialized");
@@ -364,7 +359,8 @@ impl OnboardingContract {
         config.platform_admin.require_auth();
 
         // Get existing profile
-        let mut profile: UserProfile = env.storage()
+        let mut profile: UserProfile = env
+            .storage()
             .persistent()
             .get(&DataKey::UserProfile(user.clone()))
             .expect("User not found");
@@ -415,7 +411,8 @@ impl OnboardingContract {
     /// # Returns
     /// true if user is verified, false otherwise
     pub fn is_verified(env: Env, user: Address) -> bool {
-        match env.storage()
+        match env
+            .storage()
             .persistent()
             .get::<DataKey, UserProfile>(&DataKey::UserProfile(user))
         {

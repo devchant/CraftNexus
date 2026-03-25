@@ -20,7 +20,7 @@ if ! rustup target list --installed | grep -qx "${WASM_TARGET}"; then
 fi
 
 echo "Running optimized release build..."
-RUSTFLAGS="${BUILD_RUSTFLAGS}" cargo build --target "${WASM_TARGET}" --release --locked
+RUSTFLAGS="${BUILD_RUSTFLAGS}" cargo build --target "${WASM_TARGET}" --release
 
 if [ ! -f "${WASM_ARTIFACT}" ]; then
     echo "Error: build succeeded but artifact is missing: ${WASM_ARTIFACT}"

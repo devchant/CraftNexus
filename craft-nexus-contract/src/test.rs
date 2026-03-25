@@ -1,9 +1,23 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::{Address as _, Events, Ledger}, vec, Address, Bytes, BytesN, Env, IntoVal, String, Symbol, token, TryIntoVal};
+use soroban_sdk::{
+    testutils::{Address as _, Events, Ledger},
+    token, vec, Address, Bytes, BytesN, Env, IntoVal, String, Symbol, TryIntoVal,
+};
 
-fn setup_test(env: &Env, mock_auth: bool) -> (EscrowContractClient<'static>, Address, Address, Address, token::StellarAssetClient<'static>, Address, Address) {
+fn setup_test(
+    env: &Env,
+    mock_auth: bool,
+) -> (
+    EscrowContractClient<'static>,
+    Address,
+    Address,
+    Address,
+    token::StellarAssetClient<'static>,
+    Address,
+    Address,
+) {
     if mock_auth {
         env.mock_all_auths();
     }
@@ -14,13 +28,13 @@ fn setup_test(env: &Env, mock_auth: bool) -> (EscrowContractClient<'static>, Add
     let seller = Address::generate(env);
     let platform_wallet = Address::generate(env);
     let admin = Address::generate(env);
-    
+
     let token_admin = Address::generate(env);
     let token_contract = env.register_stellar_asset_contract_v2(token_admin.clone());
     let token_admin_client = token::StellarAssetClient::new(env, &token_contract.address());
 
     let arbitrator = Address::generate(env);
-    
+
     // Set a non-zero timestamp for event tests
     env.ledger().with_mut(|li| {
         li.timestamp = 1711368000; // 2024-03-25
@@ -32,7 +46,15 @@ fn setup_test(env: &Env, mock_auth: bool) -> (EscrowContractClient<'static>, Add
     // Set min amount to 0 for tests to pass with small amounts
     client.set_min_escrow_amount(&token_contract.address(), &0);
 
-    (client, buyer, seller, token_contract.address(), token_admin_client, platform_wallet, admin)
+    (
+        client,
+        buyer,
+        seller,
+        token_contract.address(),
+        token_admin_client,
+        platform_wallet,
+        admin,
+    )
 }
 
 #[test]
@@ -40,21 +62,28 @@ fn test_create_escrow_success() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
-    
+
     let order_id = 1;
     let amount = 500;
     let window = 3600;
-    
-    let escrow = client.create_escrow(&buyer, &seller, &token_id, &amount, &order_id, &Some(window));
-    
+
+    let escrow = client.create_escrow(
+        &buyer,
+        &seller,
+        &token_id,
+        &amount,
+        &order_id,
+        &Some(window),
+    );
+
     assert_eq!(escrow.buyer, buyer);
     assert_eq!(escrow.seller, seller);
     assert_eq!(escrow.amount, amount);
     assert_eq!(escrow.status, EscrowStatus::Active);
     assert_eq!(escrow.release_window, window);
-    
+
     let stored_escrow = client.get_escrow(&order_id);
     assert_eq!(stored_escrow, escrow);
 
@@ -64,8 +93,15 @@ fn test_create_escrow_success() {
     let last_event = events.last().unwrap();
     assert_eq!(last_event.0, client.address);
     // Topics: ["escrow_created", escrow_id]
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "escrow_created").into_val(&env), (order_id as u64).into_val(&env)]);
-    
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "escrow_created").into_val(&env),
+            (order_id as u64).into_val(&env)
+        ]
+    );
+
     // Verify payload
     let event: EscrowCreatedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, order_id as u64);
@@ -81,10 +117,10 @@ fn test_create_escrow_default_window() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     let escrow = client.create_escrow(&buyer, &seller, &token_id, &100_00000, &1, &None);
-    
+
     assert_eq!(escrow.release_window, 604800); // 7 days
 }
 
@@ -93,22 +129,22 @@ fn test_release_funds_success() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, platform_wallet, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &None);
-    
+
     client.release_funds(&1);
-    
+
     let escrow = client.get_escrow(&1);
     assert_eq!(escrow.status, EscrowStatus::Released);
-    
+
     let token_client = token::Client::new(&env, &token_id);
     // Seller receives 500 - 25 (5% fee) = 475
     assert_eq!(token_client.balance(&seller), 47_500_000);
     // Platform receives 25 (5% fee)
     assert_eq!(token_client.balance(&platform_wallet), 2_500_000);
     assert_eq!(token_client.balance(&client.address), 0);
-    
+
     // Check total fees collected
     assert_eq!(client.get_total_fees_collected(), 2_500_000);
 
@@ -117,7 +153,14 @@ fn test_release_funds_success() {
     let last_event = events.last().unwrap();
     assert_eq!(last_event.0, client.address);
     // Topics: ["funds_released", escrow_id]
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "funds_released").into_val(&env), 1u64.into_val(&env)]);
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "funds_released").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
 }
 
 #[test]
@@ -126,7 +169,7 @@ fn test_release_funds_already_processed() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &None);
     client.release_funds(&1);
@@ -138,22 +181,22 @@ fn test_auto_release_success_after_window() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, platform_wallet, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
     let window = 100;
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &Some(window));
-    
+
     // Advance time
     env.ledger().with_mut(|li| {
         li.timestamp += (window + 1) as u64;
     });
-    
+
     assert!(client.can_auto_release(&1));
     client.auto_release(&1);
-    
+
     let escrow = client.get_escrow(&1);
     assert_eq!(escrow.status, EscrowStatus::Released);
-    
+
     let token_client = token::Client::new(&env, &token_id);
     // Seller receives 500 - 25 (5% fee) = 475
     assert_eq!(token_client.balance(&seller), 47_500_000);
@@ -165,7 +208,14 @@ fn test_auto_release_success_after_window() {
     let last_event = events.last().unwrap();
     assert_eq!(last_event.0, client.address);
     // Topics: ["funds_released", escrow_id]
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "funds_released").into_val(&env), 1u64.into_val(&env)]);
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "funds_released").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
 }
 
 #[test]
@@ -174,10 +224,10 @@ fn test_auto_release_failure_before_window() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     client.create_escrow(&buyer, &seller, &token_id, &100_00000, &1, &Some(100));
-    
+
     assert!(!client.can_auto_release(&1));
     client.auto_release(&1);
 }
@@ -187,20 +237,20 @@ fn test_refund_success_by_admin() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, admin) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &None);
-    
+
     // Check initial balance
     let token_client = token::Client::new(&env, &token_id);
     assert_eq!(token_client.balance(&buyer), 50_000_000);
 
     // Provide escrow_id 1
     client.refund(&1);
-    
+
     let escrow = client.get_escrow(&1);
     assert_eq!(escrow.status, EscrowStatus::Refunded);
-    
+
     assert_eq!(token_client.balance(&buyer), 100_000_000);
 
     // Verify event
@@ -208,8 +258,15 @@ fn test_refund_success_by_admin() {
     let last_event = events.last().unwrap();
     assert_eq!(last_event.0, client.address);
     // Topics: ["funds_refunded", escrow_id]
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "funds_refunded").into_val(&env), 1u64.into_val(&env)]);
-    
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "funds_refunded").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
+
     // Verify payload
     let event: FundsRefundedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, 1);
@@ -224,21 +281,31 @@ fn test_dispute_escrow_success() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_000_000);
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &None);
-    
+
     client.dispute_escrow(&1, &String::from_str(&env, "Item damaged"), &buyer);
-    
+
     let escrow = client.get_escrow(&1);
     assert_eq!(escrow.status, EscrowStatus::Disputed);
-    assert_eq!(escrow.dispute_reason, Some(String::from_str(&env, "Item damaged")));
+    assert_eq!(
+        escrow.dispute_reason,
+        Some(String::from_str(&env, "Item damaged"))
+    );
 
     // Verify event
     let events = env.events().all();
     let last_event = events.last().unwrap();
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "escrow_disputed").into_val(&env), 1u64.into_val(&env)]);
-    
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "escrow_disputed").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
+
     // Verify payload
     let event: EscrowDisputedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, 1);
@@ -262,7 +329,10 @@ fn test_dispute_escrow_by_seller() {
 
     let escrow = client.get_escrow(&1);
     assert_eq!(escrow.status, EscrowStatus::Disputed);
-    assert_eq!(escrow.dispute_reason, Some(String::from_str(&env, "Payment not received")));
+    assert_eq!(
+        escrow.dispute_reason,
+        Some(String::from_str(&env, "Payment not received"))
+    );
 }
 
 #[test]
@@ -328,7 +398,14 @@ fn test_resolve_dispute_release_to_seller() {
 
     let events = env.events().all();
     let last_event = events.last().unwrap();
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "escrow_resolved").into_val(&env), 1u64.into_val(&env)]);
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "escrow_resolved").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
 }
 
 #[test]
@@ -351,7 +428,14 @@ fn test_resolve_dispute_refund_to_buyer() {
 
     let events = env.events().all();
     let last_event = events.last().unwrap();
-    assert_eq!(last_event.1, vec![&env, Symbol::new(&env, "escrow_resolved").into_val(&env), 1u64.into_val(&env)]);
+    assert_eq!(
+        last_event.1,
+        vec![
+            &env,
+            Symbol::new(&env, "escrow_resolved").into_val(&env),
+            1u64.into_val(&env)
+        ]
+    );
 }
 
 #[test]
@@ -373,13 +457,13 @@ fn test_refund_failure_unauthorized() {
     let env = Env::default();
     // Do NOT mock auth globally during setup_test
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, false);
-    
+
     // Manually mock for create_escrow
     env.mock_all_auths();
     token_admin.mint(&buyer, &100_000_000);
     client.set_min_escrow_amount(&token_id, &0);
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &None);
-    
+
     // Now call refund as a non-admin (actually without any auth)
     // require_auth() will fail because we are calling it but no auth is recorded for 'admin'
     client.refund(&1);
@@ -399,7 +483,7 @@ fn test_create_escrow_zero_amount() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     client.create_escrow(&buyer, &seller, &token_id, &0, &1, &None);
 }
@@ -410,7 +494,7 @@ fn test_create_escrow_negative_amount() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     client.create_escrow(&buyer, &seller, &token_id, &-100, &1, &None);
 }
@@ -421,7 +505,7 @@ fn test_create_escrow_same_buyer_seller() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, _, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     client.create_escrow(&buyer, &buyer, &token_id, &100_00000, &1, &None);
 }
@@ -433,15 +517,15 @@ fn test_platform_fee_deduction_5_percent() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, platform_wallet, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     // Create escrow with 1,000,000 (should have 50,000 fee at 5%)
     client.create_escrow(&buyer, &seller, &token_id, &1_000_000, &1, &None);
-    
+
     client.release_funds(&1);
-    
+
     let token_client = token::Client::new(&env, &token_id);
-    assert_eq!(token_client.balance(&seller), 950_000);  // 1,000,000 - 50,000
+    assert_eq!(token_client.balance(&seller), 950_000); // 1,000,000 - 50,000
     assert_eq!(token_client.balance(&platform_wallet), 50_000);
     assert_eq!(client.get_total_fees_collected(), 50_000);
 }
@@ -456,23 +540,30 @@ fn test_platform_fee_deduction_10_percent() {
     let seller = Address::generate(&env);
     let platform_wallet = Address::generate(&env);
     let admin = Address::generate(&env);
-    
+
     let token_admin = Address::generate(&env);
     let token_contract = env.register_stellar_asset_contract_v2(token_admin.clone());
     let token_admin_client = token::StellarAssetClient::new(&env, &token_contract.address());
-    
+
     let arbitrator = Address::generate(&env);
 
     // Initialize with 10% fee
     client.initialize(&platform_wallet, &admin, &arbitrator, &1000);
-    
+
     token_admin_client.mint(&buyer, &10_000_000);
-    client.create_escrow(&buyer, &seller, &token_contract.address(), &10_000_000, &1, &None);
-    
+    client.create_escrow(
+        &buyer,
+        &seller,
+        &token_contract.address(),
+        &10_000_000,
+        &1,
+        &None,
+    );
+
     client.release_funds(&1);
-    
+
     let token_client = token::Client::new(&env, &token_contract.address());
-    assert_eq!(token_client.balance(&seller), 9_000_000);  // 10,000,000 - 1,000,000
+    assert_eq!(token_client.balance(&seller), 9_000_000); // 10,000,000 - 1,000,000
     assert_eq!(token_client.balance(&platform_wallet), 1_000_000);
 }
 
@@ -481,11 +572,11 @@ fn test_calculate_fee_for_amount() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, _, _, _, _, _, _) = setup_test(&env, true);
-    
+
     // 5% of 1000 = 50
     let fee = client.calculate_fee_for_amount(&1000);
     assert_eq!(fee, 50);
-    
+
     // 5% of 500 = 25
     let fee = client.calculate_fee_for_amount(&500);
     assert_eq!(fee, 25);
@@ -496,11 +587,11 @@ fn test_calculate_seller_net_amount() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, _, _, _, _, _, _) = setup_test(&env, true);
-    
+
     // 1000 - 50 = 950
     let net = client.calculate_seller_net_amount(&1000);
     assert_eq!(net, 950);
-    
+
     // 500 - 25 = 475
     let net = client.calculate_seller_net_amount(&500);
     assert_eq!(net, 475);
@@ -515,32 +606,39 @@ fn test_update_platform_fee() {
     let admin = Address::generate(&env);
     let platform_wallet = Address::generate(&env);
     let seller = Address::generate(&env);
-    
+
     let token_admin = Address::generate(&env);
     let token_contract = env.register_stellar_asset_contract_v2(token_admin.clone());
     let token_admin_client = token::StellarAssetClient::new(&env, &token_contract.address());
-    
+
     let arbitrator = Address::generate(&env);
 
     // Initialize with 5% fee
     client.initialize(&platform_wallet, &admin, &arbitrator, &500);
-    
+
     // Get initial fee
     assert_eq!(client.get_platform_fee(), 500);
-    
+
     // Update to 8% fee (800 bps) - admin auth required
     client.update_platform_fee(&800);
-    
+
     assert_eq!(client.get_platform_fee(), 800);
-    
+
     // Now create escrow and release - should use 8%
     token_admin_client.mint(&Address::generate(&env), &100_000_000);
     let buyer = Address::generate(&env);
     token_admin_client.mint(&buyer, &100_000_000);
-    client.create_escrow(&buyer, &seller, &token_contract.address(), &100_000_000, &1, &None);
-    
+    client.create_escrow(
+        &buyer,
+        &seller,
+        &token_contract.address(),
+        &100_000_000,
+        &1,
+        &None,
+    );
+
     client.release_funds(&1);
-    
+
     let token_client = token::Client::new(&env, &token_contract.address());
     // 100,000,000 - 8,000,000 = 92,000,000
     assert_eq!(token_client.balance(&seller), 92_000_000);
@@ -556,15 +654,15 @@ fn test_update_platform_fee_too_high() {
     let client = EscrowContractClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     let platform_wallet = Address::generate(&env);
-    
+
     let token_admin = Address::generate(&env);
     let token_contract = env.register_stellar_asset_contract_v2(token_admin.clone());
-    
+
     let arbitrator = Address::generate(&env);
 
     // Initialize with 5% fee
     client.initialize(&platform_wallet, &admin, &arbitrator, &500);
-    
+
     // Try to set fee above max (10%)
     client.update_platform_fee(&1500);
 }
@@ -574,16 +672,16 @@ fn test_total_fees_accumulate() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, platform_wallet, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &30_000_000);
-    
+
     // Create and release multiple escrows
     client.create_escrow(&buyer, &seller, &token_id, &10_000_000, &1, &None);
     client.release_funds(&1);
-    
+
     client.create_escrow(&buyer, &seller, &token_id, &10_000_000, &2, &None);
     client.release_funds(&2);
-    
+
     let token_client = token::Client::new(&env, &token_id);
     // Total fees: 500,000 + 500,000 = 1,000,000
     assert_eq!(token_client.balance(&platform_wallet), 1_000_000);
@@ -689,7 +787,7 @@ fn test_auto_release_at_exact_window_boundary() {
     token_admin.mint(&buyer, &100_000_000);
     let window = 100;
     client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &1, &Some(window));
-    
+
     // Exactly at boundary should be releasable.
     env.ledger().with_mut(|li| {
         li.timestamp += window as u64;
@@ -760,8 +858,22 @@ fn test_integration_multiple_tokens_and_escrows() {
     let token_b_asset = token::StellarAssetClient::new(&env, &token_b_contract.address());
     token_b_asset.mint(&buyer, &200_000_000);
 
-    client.create_escrow(&buyer, &seller, &token_a_contract.address(), &10_000_000, &1, &None);
-    client.create_escrow(&buyer, &seller, &token_b_contract.address(), &10_000_000, &2, &None);
+    client.create_escrow(
+        &buyer,
+        &seller,
+        &token_a_contract.address(),
+        &10_000_000,
+        &1,
+        &None,
+    );
+    client.create_escrow(
+        &buyer,
+        &seller,
+        &token_b_contract.address(),
+        &10_000_000,
+        &2,
+        &None,
+    );
 
     client.release_funds(&1);
     client.release_funds(&2);
@@ -809,8 +921,8 @@ fn test_create_escrow_with_metadata_success_cid_v0() {
     let metadata_hash = Bytes::from_array(
         &env,
         &[
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1,
         ],
     );
 
@@ -840,7 +952,10 @@ fn test_create_escrow_with_metadata_success_cid_v1() {
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
 
     token_admin.mint(&buyer, &100_000_000);
-    let ipfs_hash = String::from_str(&env, "bafybeigdyrztf2v7y5h6l2k3g5zazf5s6ptm3h4m5k4e3v2w2x2y3z4a5q");
+    let ipfs_hash = String::from_str(
+        &env,
+        "bafybeigdyrztf2v7y5h6l2k3g5zazf5s6ptm3h4m5k4e3v2w2x2y3z4a5q",
+    );
 
     let escrow = client.create_escrow_with_metadata(
         &buyer,
@@ -882,32 +997,32 @@ fn test_escrow_search_by_buyer() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &200_000_000);
-    
+
     // Create 3 escrows for the same buyer
     client.create_escrow(&buyer, &seller, &token_id, &10_000_000, &1, &None);
     client.create_escrow(&buyer, &seller, &token_id, &20_000_000, &2, &None);
     client.create_escrow(&buyer, &seller, &token_id, &30_000_000, &3, &None);
-    
+
     // Get all (limit 10)
     let b1 = client.get_escrows_by_buyer(&buyer, &0, &10);
     assert_eq!(b1.len(), 3);
     assert_eq!(b1.get_unchecked(0), 1);
     assert_eq!(b1.get_unchecked(1), 2);
     assert_eq!(b1.get_unchecked(2), 3);
-    
+
     // Pagination: page 0, limit 2
     let b2 = client.get_escrows_by_buyer(&buyer, &0, &2);
     assert_eq!(b2.len(), 2);
     assert_eq!(b2.get_unchecked(0), 1);
     assert_eq!(b2.get_unchecked(1), 2);
-    
+
     // Pagination: page 1, limit 2
     let b3 = client.get_escrows_by_buyer(&buyer, &1, &2);
     assert_eq!(b3.len(), 1);
     assert_eq!(b3.get_unchecked(0), 3);
-    
+
     // Pagination: out of bounds
     let b4 = client.get_escrows_by_buyer(&buyer, &2, &2);
     assert_eq!(b4.len(), 0);
@@ -918,26 +1033,26 @@ fn test_escrow_search_by_seller() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &200_000_000);
-    
+
     // Create escrows for different sellers
     let seller2 = Address::generate(&env);
     client.create_escrow(&buyer, &seller, &token_id, &10_000_000, &1, &None);
     client.create_escrow(&buyer, &seller2, &token_id, &20_000_000, &2, &None);
     client.create_escrow(&buyer, &seller, &token_id, &30_000_000, &3, &None);
-    
+
     // Check seller 1
     let s1 = client.get_escrows_by_seller(&seller, &0, &10);
     assert_eq!(s1.len(), 2);
     assert_eq!(s1.get_unchecked(0), 1);
     assert_eq!(s1.get_unchecked(1), 3);
-    
+
     // Check seller 2
     let s2 = client.get_escrows_by_seller(&seller2, &0, &10);
     assert_eq!(s2.len(), 1);
     assert_eq!(s2.get_unchecked(0), 2);
-    
+
     // Check non-existent seller
     let s3 = client.get_escrows_by_seller(&Address::generate(&env), &0, &10);
     assert_eq!(s3.len(), 0);
@@ -948,13 +1063,13 @@ fn test_min_escrow_amount_configuration() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     token_admin.mint(&buyer, &100_00000);
     // Let's test set_min_escrow_amount.
-    
+
     // Set a small min amount
     client.set_min_escrow_amount(&token_id, &1_00000); // 1 token
-    
+
     // Now 50_00000 should work
     client.create_escrow(&buyer, &seller, &token_id, &50_00000, &1, &None);
     let escrow = client.get_escrow(&1);
@@ -967,9 +1082,9 @@ fn test_create_escrow_below_custom_minimum() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
-    
+
     client.set_min_escrow_amount(&token_id, &50_000_000); // 50 tokens
-    
+
     token_admin.mint(&buyer, &100_000_000);
     client.create_escrow(&buyer, &seller, &token_id, &40_000_000, &1, &None); // Should panic
 }
@@ -980,7 +1095,7 @@ fn test_set_min_escrow_amount_unauthorized() {
     let env = Env::default();
     // Do NOT mock auth globally
     let (client, _, _, token_id, _, _, _) = setup_test(&env, false);
-    
+
     // Attempt to set min amount without being the admin or providing auth
     // The contract uses get_admin and admin.require_auth()
     client.set_min_escrow_amount(&token_id, &100);
@@ -991,17 +1106,17 @@ fn test_contract_upgrade_success() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, _, _, _, _, _, _) = setup_test(&env, true);
-    
+
     // Initial version should be 1
     assert_eq!(client.get_version(), 1);
-    
+
     // To test update_wasm, we need a WASM hash that "exists" in the test environment.
     // We can upload a tiny dummy WASM to get a valid hash.
     let dummy_wasm = Bytes::from_array(&env, &[0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]);
     let new_wasm_hash = env.deployer().upload_contract_wasm(dummy_wasm);
-    
+
     client.update_wasm(&new_wasm_hash);
-    
+
     // Version should be 2
     assert_eq!(client.get_version(), 2);
 }
@@ -1012,9 +1127,9 @@ fn test_contract_upgrade_unauthorized() {
     let env = Env::default();
     // Do NOT mock auth globally
     let (client, _, _, _, _, _, _) = setup_test(&env, false);
-    
+
     let dummy_hash = BytesN::from_array(&env, &[1u8; 32]);
-    
+
     // Attempt upgrade without admin auth
     client.update_wasm(&dummy_hash);
 }
@@ -1025,4 +1140,242 @@ fn test_get_version_initially() {
     env.mock_all_auths();
     let (client, _, _, _, _, _, _) = setup_test(&env, true);
     assert_eq!(client.get_version(), 1);
+}
+
+// ============== Batch Operations Tests ==============
+
+#[test]
+fn test_create_batch_escrow_success() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    // Mint enough tokens for multiple escrows
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    let escrow_params = vec![
+        &env,
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: seller.clone(),
+            token: token_id.clone(),
+            amount: 100_000_000,
+            order_id: 100,
+            release_window: Some(3600),
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: seller.clone(),
+            token: token_id.clone(),
+            amount: 200_000_000,
+            order_id: 101,
+            release_window: Some(7200),
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: seller.clone(),
+            token: token_id.clone(),
+            amount: 150_000_000,
+            order_id: 102,
+            release_window: None, // Uses default
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+    ];
+
+    let batch_id = 1u64;
+    let results = client.create_batch_escrow(&batch_id, &escrow_params);
+
+    assert_eq!(results.len(), 3);
+    assert_eq!(results.get(0).unwrap(), 100);
+    assert_eq!(results.get(1).unwrap(), 101);
+    assert_eq!(results.get(2).unwrap(), 102);
+
+    // Verify escrows were created
+    let escrow1 = client.get_escrow(&100);
+    assert_eq!(escrow1.amount, 100_000_000);
+    assert_eq!(escrow1.status, EscrowStatus::Active);
+
+    let escrow2 = client.get_escrow(&101);
+    assert_eq!(escrow2.amount, 200_000_000);
+    assert_eq!(escrow2.status, EscrowStatus::Active);
+
+    let escrow3 = client.get_escrow(&102);
+    assert_eq!(escrow3.amount, 150_000_000);
+    assert_eq!(escrow3.release_window, 604800); // Default 7 days
+
+    // Verify events were emitted
+    let events = env.events().all();
+    let batch_events: Vec<_> = events
+        .iter()
+        .filter(|(topics, _)| {
+            topics.len() >= 2 && topics[0] == Symbol::new(&env, "batch_escrow_created")
+        })
+        .collect();
+    assert_eq!(
+        batch_events.len(),
+        3,
+        "Should emit batch event for each escrow"
+    );
+}
+
+#[test]
+#[should_panic(expected = "AmountBelowMinimum")]
+fn test_create_batch_escrow_fails_on_invalid_amount() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create batch with invalid amount (zero)
+    let escrow_params = vec![
+        &env,
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: seller.clone(),
+            token: token_id.clone(),
+            amount: 0, // Invalid - zero amount
+            order_id: 100,
+            release_window: Some(3600),
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+    ];
+
+    client.create_batch_escrow(&1u64, &escrow_params);
+}
+
+#[test]
+#[should_panic(expected = "SameBuyerSeller")]
+fn test_create_batch_escrow_fails_same_buyer_seller() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, _, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create batch where buyer equals seller
+    let escrow_params = vec![
+        &env,
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: buyer.clone(), // Same as buyer!
+            token: token_id.clone(),
+            amount: 100,
+            order_id: 100,
+            release_window: Some(3600),
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+    ];
+
+    client.create_batch_escrow(&1u64, &escrow_params);
+}
+
+#[test]
+fn test_release_batch_funds_success() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, platform_wallet, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create multiple escrows
+    client.create_escrow(&buyer, &seller, &token_id, &100_000_000, &100, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &200_000_000, &101, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &150_000_000, &102, &None);
+
+    // Release batch
+    let order_ids = vec![&env, 100u32, 101u32, 102u32];
+    let batch_id = 1u64;
+    let results = client.release_batch_funds(&batch_id, &order_ids, &buyer);
+
+    assert_eq!(results.len(), 3);
+    assert_eq!(results.get(0).unwrap(), 100);
+    assert_eq!(results.get(1).unwrap(), 101);
+    assert_eq!(results.get(2).unwrap(), 102);
+
+    // Verify statuses
+    let escrow1 = client.get_escrow(&100);
+    assert_eq!(escrow1.status, EscrowStatus::Released);
+
+    let escrow2 = client.get_escrow(&101);
+    assert_eq!(escrow2.status, EscrowStatus::Released);
+
+    let escrow3 = client.get_escrow(&102);
+    assert_eq!(escrow3.status, EscrowStatus::Released);
+
+    // Verify batch events were emitted
+    let events = env.events().all();
+    let batch_events: Vec<_> = events
+        .iter()
+        .filter(|(topics, _)| {
+            topics.len() >= 2 && topics[0] == Symbol::new(&env, "batch_funds_released")
+        })
+        .collect();
+    assert_eq!(
+        batch_events.len(),
+        3,
+        "Should emit batch event for each release"
+    );
+}
+
+#[test]
+#[should_panic(expected = "EscrowNotFound")]
+fn test_release_batch_funds_fails_escrow_not_found() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create one escrow
+    client.create_escrow(&buyer, &seller, &token_id, &100, &100, &None);
+
+    // Try to release batch with non-existent escrow
+    let order_ids = vec![&env, 100u32, 999u32]; // 999 doesn't exist
+    client.release_batch_funds(&1u64, &order_ids, &buyer);
+}
+
+#[test]
+#[should_panic(expected = "InvalidEscrowState")]
+fn test_release_batch_funds_fails_invalid_state() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create escrow
+    client.create_escrow(&buyer, &seller, &token_id, &100, &100, &None);
+
+    // Release it first
+    client.release_funds(&100);
+
+    // Try to release again in batch
+    let order_ids = vec![&env, 100u32];
+    client.release_batch_funds(&1u64, &order_ids, &buyer);
+}
+
+#[test]
+#[should_panic(expected = "Unauthorized")]
+fn test_release_batch_funds_fails_unauthorized() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &1_000_000_000);
+
+    // Create escrow
+    client.create_escrow(&buyer, &seller, &token_id, &100, &100, &None);
+
+    // Try to release with different address
+    let unauthorized = Address::generate(&env);
+    let order_ids = vec![&env, 100u32];
+    client.release_batch_funds(&1u64, &order_ids, &unauthorized);
 }
