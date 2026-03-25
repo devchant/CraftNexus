@@ -91,7 +91,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] px-4 sm:px-6 md:px-10 lg:px-20 items-center justify-center grid grid-cols-3 p-4">
+    <div className="min-h-screen bg-[#F9FAFB] px-4 sm:px-6 md:px-10 lg:px-20 items-center justify-center grid grid-cols-1 md:grid-cols-3 p-4">
       {/* Card */}
       <div
         className="w-full bg-[#F9FAFB] rounded-2xl p-8 md:p-10"

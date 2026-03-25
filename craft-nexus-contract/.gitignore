@@ -6,6 +6,9 @@ Cargo.lock
 # WASM output
 *.wasm
 
+# Local tooling (e.g. stellar-cli unpacked for dev)
+.local-bin/
+
 # IDE
 .vscode/
 .idea/

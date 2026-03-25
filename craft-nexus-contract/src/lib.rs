@@ -5,6 +5,10 @@ use soroban_sdk::{
 };
 
 mod test;
+// Onboarding is a separate logical contract; only one `#[contract]` may be linked per WASM
+// artifact. Keep it in this crate for host tests (`cargo test`) but omit from guest builds.
+#[cfg(not(target_family = "wasm"))]
+pub mod onboarding;
 
 const ESCROW: Symbol = symbol_short!("ESCROW");
 const PLATFORM_FEE: Symbol = symbol_short!("PLAT_FEE");
