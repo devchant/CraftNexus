@@ -700,3 +700,70 @@ fn test_create_escrow_with_invalid_cid_fails() {
         &None,
     );
 }
+// ===== Search and Pagination Tests =====
+
+#[test]
+fn test_escrow_search_by_buyer() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _) = setup_test(&env);
+    
+    token_admin.mint(&buyer, &2000);
+    
+    // Create 3 escrows for the same buyer
+    client.create_escrow(&buyer, &seller, &token_id, &100, &1, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &200, &2, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &300, &3, &None);
+    
+    // Get all (limit 10)
+    let b1 = client.get_escrows_by_buyer(&buyer, &0, &10);
+    assert_eq!(b1.len(), 3);
+    assert_eq!(b1.get_unchecked(0), 1);
+    assert_eq!(b1.get_unchecked(1), 2);
+    assert_eq!(b1.get_unchecked(2), 3);
+    
+    // Pagination: page 0, limit 2
+    let b2 = client.get_escrows_by_buyer(&buyer, &0, &2);
+    assert_eq!(b2.len(), 2);
+    assert_eq!(b2.get_unchecked(0), 1);
+    assert_eq!(b2.get_unchecked(1), 2);
+    
+    // Pagination: page 1, limit 2
+    let b3 = client.get_escrows_by_buyer(&buyer, &1, &2);
+    assert_eq!(b3.len(), 1);
+    assert_eq!(b3.get_unchecked(0), 3);
+    
+    // Pagination: out of bounds
+    let b4 = client.get_escrows_by_buyer(&buyer, &2, &2);
+    assert_eq!(b4.len(), 0);
+}
+
+#[test]
+fn test_escrow_search_by_seller() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _) = setup_test(&env);
+    
+    token_admin.mint(&buyer, &2000);
+    
+    // Create escrows for different sellers
+    let seller2 = Address::generate(&env);
+    client.create_escrow(&buyer, &seller, &token_id, &100, &1, &None);
+    client.create_escrow(&buyer, &seller2, &token_id, &200, &2, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &300, &3, &None);
+    
+    // Check seller 1
+    let s1 = client.get_escrows_by_seller(&seller, &0, &10);
+    assert_eq!(s1.len(), 2);
+    assert_eq!(s1.get_unchecked(0), 1);
+    assert_eq!(s1.get_unchecked(1), 3);
+    
+    // Check seller 2
+    let s2 = client.get_escrows_by_seller(&seller2, &0, &10);
+    assert_eq!(s2.len(), 1);
+    assert_eq!(s2.get_unchecked(0), 2);
+    
+    // Check non-existent seller
+    let s3 = client.get_escrows_by_seller(&Address::generate(&env), &0, &10);
+    assert_eq!(s3.len(), 0);
+}

@@ -54,6 +54,14 @@ const DEFAULT_PLATFORM_FEE_BPS: u32 = 500;
 const MAX_PLATFORM_FEE_BPS: u32 = 1000; // 10% max
 
 #[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum DataKey {
+    Escrow(u32),
+    BuyerEscrows(Address),
+    SellerEscrows(Address),
+}
+
+#[contracttype]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum EscrowStatus {
     Pending = 0,
@@ -277,10 +285,21 @@ impl EscrowContract {
             metadata_hash: metadata_hash.clone(),
         };
 
-        // Store escrow by order_id
         env.storage()
             .persistent()
             .set(&(ESCROW, order_id), &escrow);
+
+        // Update buyer's escrow list for indexing
+        let buyer_key = DataKey::BuyerEscrows(buyer.clone());
+        let mut buyer_escrows: soroban_sdk::Vec<u64> = env.storage().persistent().get(&buyer_key).unwrap_or(soroban_sdk::Vec::new(&env));
+        buyer_escrows.push_back(order_id as u64);
+        env.storage().persistent().set(&buyer_key, &buyer_escrows);
+
+        // Update seller's escrow list for indexing
+        let seller_key = DataKey::SellerEscrows(seller.clone());
+        let mut seller_escrows: soroban_sdk::Vec<u64> = env.storage().persistent().get(&seller_key).unwrap_or(soroban_sdk::Vec::new(&env));
+        seller_escrows.push_back(order_id as u64);
+        env.storage().persistent().set(&seller_key, &seller_escrows);
 
         // Transfer funds from buyer to contract
         let client = token::Client::new(&env, &token);
@@ -299,6 +318,50 @@ impl EscrowContract {
         env.events().publish((Symbol::new(&env, "escrow_created"), order_id as u64), event);
 
         escrow
+    }
+
+    /// Get escrows for a specific buyer with pagination.
+    pub fn get_escrows_by_buyer(
+        env: Env,
+        buyer: Address,
+        page: u32,
+        limit: u32,
+    ) -> Result<soroban_sdk::Vec<u64>, Error> {
+        let key = DataKey::BuyerEscrows(buyer);
+        let escrow_ids: soroban_sdk::Vec<u64> = env.storage().persistent().get(&key)
+            .unwrap_or(soroban_sdk::Vec::new(&env));
+        
+        let start = page * limit;
+        let len = escrow_ids.len();
+        
+        if start >= len {
+            return Ok(soroban_sdk::Vec::new(&env));
+        }
+        
+        let end = (start + limit).min(len);
+        Ok(escrow_ids.slice(start..end))
+    }
+
+    /// Get escrows for a specific seller with pagination.
+    pub fn get_escrows_by_seller(
+        env: Env,
+        seller: Address,
+        page: u32,
+        limit: u32,
+    ) -> Result<soroban_sdk::Vec<u64>, Error> {
+        let key = DataKey::SellerEscrows(seller);
+        let escrow_ids: soroban_sdk::Vec<u64> = env.storage().persistent().get(&key)
+            .unwrap_or(soroban_sdk::Vec::new(&env));
+        
+        let start = page * limit;
+        let len = escrow_ids.len();
+        
+        if start >= len {
+            return Ok(soroban_sdk::Vec::new(&env));
+        }
+        
+        let end = (start + limit).min(len);
+        Ok(escrow_ids.slice(start..end))
     }
 
     /// Get platform configuration

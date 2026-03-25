@@ -1,0 +1,75 @@
+   Compiling craft-nexus-contract v0.1.0 (/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract)
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:719:59
+    |
+719 | ...0).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:726:58
+    |
+726 | ...2).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:732:58
+    |
+732 | ...2).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:737:58
+    |
+737 | ...2).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:756:61
+    |
+756 | ...0).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:762:62
+    |
+762 | ...0).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `unwrap` found for struct `Vec<T>` in the current scope
+   --> src/test.rs:767:78
+    |
+767 | ...0).unwrap();
+    |       ^^^^^^ method not found in `Vec<u64>`
+    |
+    = note: the full name for the type has been written to '/Users/atec/Desktop/Work stuff/CraftNexus/craft-nexus-contract/target/debug/deps/craft_nexus_contract-ec1ace976eaf7145.long-type-18408171063992311396.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+warning: unused variable: `token_contract`
+   --> src/test.rs:394:9
+    |
+394 | ...et token_contract = ...
+    |       ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_token_contract`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0599`.
+warning: `craft-nexus-contract` (lib test) generated 1 warning
+error: could not compile `craft-nexus-contract` (lib test) due to 7 previous errors; 1 warning emitted
