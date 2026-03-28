@@ -455,8 +455,10 @@ impl EscrowContract {
         }
     }
 
-    fn validate_optional_metadata_hash(_metadata_hash: &Option<Bytes>) {
-        // Bytes length is not constrained by type; callers are responsible for content
+    fn validate_optional_metadata_hash(metadata_hash: &Option<Bytes>) {
+        if let Some(hash) = metadata_hash {
+            assert!(hash.len() == 32, "Invalid metadata hash length");
+        }
     }
 
     fn get_admin(env: &Env) -> Result<Address, Error> {
@@ -1837,7 +1839,11 @@ impl EscrowContract {
             }
         }
 
-        // metadata_hash is Option<Bytes>; type guarantees 32 bytes, no runtime check needed
+        if let Some(hash) = &params.metadata_hash {
+            if hash.len() != 32 {
+                return Err(Error::InvalidFee); // Use invalid fee as proxy for invalid metadata hash
+            }
+        }
 
         Ok(())
     }
