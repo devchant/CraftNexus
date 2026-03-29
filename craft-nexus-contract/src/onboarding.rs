@@ -5,7 +5,7 @@ use soroban_sdk::{TryFromVal, Val};
 const TTL_THRESHOLD: u32 = 10_000;
 /// Standard TTL extension for persistent storage (approx 30 days)
 const TTL_EXTENSION: u32 = 518_400;
-const CURRENT_USER_PROFILE_VERSION: u32 = 2;
+const CURRENT_USER_PROFILE_VERSION: u32 = 3;
 
 #[cfg(test)]
 #[path = "onboarding_test.rs"]
@@ -58,6 +58,8 @@ pub struct UserProfile {
     pub successful_trades: u32,
     /// Count of escrows that ended in a dispute against this user (#100)
     pub disputed_trades: u32,
+    /// Portfolio CID for artisan showcase (IPFS) - Issue #112
+    pub portfolio_cid: Option<String>,
 }
 
 #[contracttype]
@@ -72,6 +74,8 @@ struct LegacyUserProfile {
     pub successful_trades: u32,
     /// Count of escrows that ended in a dispute against this user (#100)
     pub disputed_trades: u32,
+    /// Portfolio CID for artisan showcase (IPFS) - Issue #112
+    pub portfolio_cid: Option<String>,
 }
 
 /// Activity metrics used to determine eligibility for auto-verification (#63)
@@ -271,6 +275,76 @@ fn utf8_char_len(first_byte: u8) -> usize {
     }
 }
 
+/// Validate IPFS CID format (v0 and v1 with multibase prefixes).
+///
+/// Supports:
+/// - CIDv0: 46-char Base58btc starting with "Qm"
+/// - CIDv1 base32lower (prefix 'b'): lowercase a-z + 2-7
+/// - CIDv1 base16lower (prefix 'f'): lowercase hex 0-9 + a-f
+/// - CIDv1 base58btc  (prefix 'z'): Base58 alphabet
+fn validate_ipfs_cid(cid: &String) -> bool {
+    let len = cid.len() as usize;
+    if len == 0 || len > 128 {
+        return false;
+    }
+
+    let mut buf = [0u8; 128];
+    cid.copy_into_slice(&mut buf[0..len]);
+    let cid_bytes = &buf[0..len];
+
+    // CIDv0: exactly 46 chars, starts with "Qm", Base58btc alphabet
+    let is_v0 = len == 46
+        && cid_bytes[0] == b'Q'
+        && cid_bytes[1] == b'm'
+        && cid_bytes.iter().all(|b| {
+            matches!(
+                *b,
+                b'1'..=b'9'
+                    | b'A'..=b'H'
+                    | b'J'..=b'N'
+                    | b'P'..=b'Z'
+                    | b'a'..=b'k'
+                    | b'm'..=b'z'
+            )
+        });
+
+    if is_v0 {
+        return true;
+    }
+
+    // CIDv1: minimum 3 chars (multibase prefix + version byte + codec)
+    if len < 3 {
+        return false;
+    }
+
+    let prefix = cid_bytes[0];
+    let payload = &cid_bytes[1..];
+
+    match prefix {
+        // base32lower (most common CIDv1 encoding)
+        b'b' => payload
+            .iter()
+            .all(|b| matches!(*b, b'a'..=b'z' | b'2'..=b'7')),
+        // base16lower (hex)
+        b'f' => payload
+            .iter()
+            .all(|b| matches!(*b, b'0'..=b'9' | b'a'..=b'f')),
+        // base58btc
+        b'z' => payload.iter().all(|b| {
+            matches!(
+                *b,
+                b'1'..=b'9'
+                    | b'A'..=b'H'
+                    | b'J'..=b'N'
+                    | b'P'..=b'Z'
+                    | b'a'..=b'k'
+                    | b'm'..=b'z'
+            )
+        }),
+        _ => false,
+    }
+}
+
 #[contract]
 pub struct OnboardingContract;
 
@@ -316,6 +390,10 @@ impl OnboardingContract {
 
     fn upgrade_user_profile(env: &Env, user: Address, mut profile: UserProfile) -> UserProfile {
         profile.version = CURRENT_USER_PROFILE_VERSION;
+        // Initialize portfolio_cid to None for existing profiles
+        if profile.portfolio_cid.is_none() {
+            profile.portfolio_cid = None;
+        }
         let key = DataKey::UserProfile(user);
         env.storage().persistent().set(&key, &profile);
         Self::extend_persistent(env, &key);
@@ -364,6 +442,7 @@ impl OnboardingContract {
             is_verified: true,
             successful_trades: 0,
             disputed_trades: 0,
+            portfolio_cid: None,
         };
 
         env.storage()
@@ -452,6 +531,7 @@ impl OnboardingContract {
             is_verified: false,
             successful_trades: 0,
             disputed_trades: 0,
+            portfolio_cid: None,
         };
 
         // Store profile
@@ -1224,5 +1304,59 @@ impl OnboardingContract {
             .persistent()
             .get(&DataKey::UsernameChangeFee)
             .unwrap_or(0)
+    }
+
+    // -----------------------------------------------------------------------
+    // Issue #112 – Artisan Portfolio Verification
+    // -----------------------------------------------------------------------
+
+    /// Update an artisan's portfolio CID (Issue #112)
+    ///
+    /// Allows artisans to update their portfolio showcase stored on IPFS.
+    /// Validates the CID format using the same validation as escrow metadata.
+    ///
+    /// # Arguments
+    /// * `user` - User's wallet address
+    /// * `portfolio_cid` - IPFS CID of the portfolio (or None to remove)
+    ///
+    /// # Reverts if
+    /// - User not onboarded
+    /// - User is not an artisan
+    /// - Invalid CID format (if provided)
+    pub fn update_portfolio(env: Env, user: Address, portfolio_cid: Option<String>) -> UserProfile {
+        user.require_auth();
+
+        // Get current user profile
+        let profile_key = DataKey::UserProfile(user.clone());
+        let mut profile: UserProfile = env
+            .storage()
+            .persistent()
+            .get(&profile_key)
+            .expect("User not onboarded");
+        Self::extend_persistent(&env, &profile_key);
+
+        // Only artisans can update their portfolio
+        assert!(
+            profile.role == UserRole::Artisan,
+            "Only artisans can update portfolio"
+        );
+
+        // Validate CID format if provided
+        if let Some(ref cid) = portfolio_cid {
+            assert!(validate_ipfs_cid(cid), "Invalid portfolio CID format");
+        }
+
+        // Update portfolio CID
+        profile.portfolio_cid = portfolio_cid;
+
+        // Store updated profile
+        env.storage().persistent().set(&profile_key, &profile);
+        Self::extend_persistent(&env, &profile_key);
+
+        // Emit event
+        env.events()
+            .publish((Symbol::new(&env, "PortfolioUpdated"),), &user);
+
+        profile
     }
 }

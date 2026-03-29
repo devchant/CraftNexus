@@ -33,7 +33,7 @@ pub enum Error {
     NotInDispute = 8,
     /// User already onboarded
     AlreadyOnboarded = 9,
-    /// Invalid fee amount
+    /// Invalid fee amount (must be <= MAX_PLATFORM_FEE_BPS)
     InvalidFee = 10,
     /// Buyer and seller cannot be the same
     SameBuyerSeller = 11,
@@ -41,7 +41,7 @@ pub enum Error {
     PlatformNotInitialized = 12,
     /// Release window not yet elapsed
     ReleaseWindowNotElapsed = 13,
-    /// Batch operation error
+    /// Batch operation error (deprecated: use BatchLimitExceeded)
     BatchOperationFailed = 14,
     /// Contract is paused
     ContractPaused = 15,
@@ -63,6 +63,28 @@ pub enum Error {
     ReleaseWindowTooShort = 23,
     /// Staked funds can only be withdrawn in the original staking token
     StakeTokenMismatch = 24,
+    /// Invalid IPFS CID format (must be valid CIDv0 or CIDv1)
+    InvalidIpfsHash = 25,
+    /// Invalid metadata hash length (must be 32 bytes)
+    InvalidMetadataHash = 26,
+    /// Batch size exceeds maximum allowed (MAX_BATCH_SIZE)
+    BatchLimitExceeded = 27,
+    /// Invalid portfolio CID format
+    InvalidPortfolioCid = 28,
+    /// User is not an artisan
+    NotAnArtisan = 29,
+    /// Invalid verification level
+    InvalidVerificationLevel = 30,
+    /// Username change cooldown not elapsed
+    UsernameChangeCooldownActive = 31,
+    /// Invalid dispute reason (empty or too long)
+    InvalidDisputeReason = 32,
+    /// Escrow amount below minimum for token
+    EscrowAmountBelowMinimum = 33,
+    /// Invalid release window (exceeds maximum)
+    InvalidReleaseWindow = 34,
+    /// Unauthorized admin operation
+    UnauthorizedAdmin = 35,
 }
 
 const ESCROW: Symbol = symbol_short!("ESCROW");
@@ -1856,13 +1878,13 @@ impl EscrowContract {
         // Validate IPFS hash if provided
         if let Some(ref ipfs) = params.ipfs_hash {
             if !Self::validate_ipfs_cid(ipfs) {
-                return Err(Error::InvalidFee); // Use invalid fee as proxy for invalid CID
+                return Err(Error::InvalidIpfsHash);
             }
         }
 
         if let Some(hash) = &params.metadata_hash {
             if hash.len() != 32 {
-                return Err(Error::InvalidFee); // Use invalid fee as proxy for invalid metadata hash
+                return Err(Error::InvalidMetadataHash);
             }
         }
 
@@ -1945,7 +1967,7 @@ impl EscrowContract {
         let mut errors: Map<u32, Error> = Map::new(&env);
 
         if escrows.len() > MAX_BATCH_SIZE as u32 {
-            env.panic_with_error(Error::BatchOperationFailed);
+            env.panic_with_error(Error::BatchLimitExceeded);
         }
 
         for i in 0..escrows.len() {
@@ -1975,7 +1997,7 @@ impl EscrowContract {
     /// Vector of created escrow IDs
     ///
     /// # Errors
-    /// - BatchOperationFailed if batch exceeds MAX_BATCH_SIZE
+    /// - BatchLimitExceeded if batch exceeds MAX_BATCH_SIZE
     /// - Any validation error from individual escrows
     pub fn create_batch_escrow(
         env: Env,
@@ -1987,7 +2009,7 @@ impl EscrowContract {
 
         // Issue #111: Enforce batch size limit
         if escrows.len() > MAX_BATCH_SIZE as u32 {
-            return Err(Error::BatchOperationFailed);
+            return Err(Error::BatchLimitExceeded);
         }
 
         let mut results = soroban_sdk::Vec::new(&env);
