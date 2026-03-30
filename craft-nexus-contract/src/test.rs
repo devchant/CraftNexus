@@ -745,10 +745,7 @@ fn test_initialize_emits_config_events() {
         .try_into_val(&env)
         .unwrap();
 
-    assert_eq!(
-        fee_event.field_name,
-        Symbol::new(&env, "platform_fee_bps")
-    );
+    assert_eq!(fee_event.field_name, Symbol::new(&env, "platform_fee_bps"));
     assert_eq!(
         wallet_event.field_name,
         Symbol::new(&env, "platform_wallet")
@@ -1052,8 +1049,14 @@ fn test_integration_multiple_tokens_and_escrows() {
     let fee_b = token_b.balance(&platform_wallet);
     assert_eq!(fee_a, 500_000);
     assert_eq!(fee_b, 500_000);
-    assert_eq!(client.get_total_fees_for_token(&token_a_contract.address()), 500_000);
-    assert_eq!(client.get_total_fees_for_token(&token_b_contract.address()), 500_000);
+    assert_eq!(
+        client.get_total_fees_for_token(&token_a_contract.address()),
+        500_000
+    );
+    assert_eq!(
+        client.get_total_fees_for_token(&token_b_contract.address()),
+        500_000
+    );
     assert_eq!(client.get_total_fees_collected(), 1_000_000);
 }
 
@@ -2502,7 +2505,8 @@ fn test_validate_batch_creation_exceeds_limit() {
     };
 
     let mut batch_params = soroban_sdk::Vec::new(&env);
-    for _ in 0..101 { // MAX_BATCH_SIZE is 100
+    for _ in 0..101 {
+        // MAX_BATCH_SIZE is 100
         batch_params.push_back(valid_param.clone());
     }
 

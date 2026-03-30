@@ -1,6 +1,6 @@
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env, Map,
-    String, Symbol, TryFromVal, Val, Vec,
+    contract, contracterror, contractimpl, contracttype, token, Address, Env, Map, String, Symbol,
+    TryFromVal, Val, Vec,
 };
 
 /// Standard TTL threshold for persistent storage (approx 14 hours at 5s ledger)
@@ -192,7 +192,7 @@ fn normalize_username(env: &Env, username: &String) -> String {
     const MAX_OUTPUT_BYTES: usize = 256;
     let len = username.len() as usize;
     if len > MAX_INPUT_BYTES {
-        // Can't use env.panic_with_error here without Env. 
+        // Can't use env.panic_with_error here without Env.
         // But we can just use unwrap() on a None or something similar if we want to save space,
         // or just let it panic without a string.
         panic!();
@@ -543,14 +543,11 @@ impl OnboardingContract {
             .persistent()
             .get(&key)
             .unwrap_or_else(|| env.panic_with_error(Error::UserNotFound));
-        let map = Map::<Symbol, Val>::try_from_val(env, &stored)
-            .expect("");
+        let map = Map::<Symbol, Val>::try_from_val(env, &stored).expect("");
         let version_key = Symbol::new(env, "version");
 
         if map.contains_key(version_key) {
-            let profile =
-                UserProfile::try_from_val(env, &stored)
-                    .expect("");
+            let profile = UserProfile::try_from_val(env, &stored).expect("");
             if profile.version < CURRENT_USER_PROFILE_VERSION {
                 return Self::upgrade_user_profile(env, user, profile);
             }
@@ -919,8 +916,10 @@ impl OnboardingContract {
         Self::extend_persistent(&env, &DataKey::UserProfile(user.clone()));
 
         // Emit event
-        env.events()
-            .publish((Symbol::new(&env, "ProfileDeactivated"), user.clone()), user);
+        env.events().publish(
+            (Symbol::new(&env, "ProfileDeactivated"), user.clone()),
+            user,
+        );
     }
 
     /// Verify user (admin only)
@@ -1326,7 +1325,10 @@ impl OnboardingContract {
 
         for index in head..tail {
             let queue_index_key = DataKey::VerificationQueueIndex(index);
-            if let Some(user) = env.storage().persistent().get::<DataKey, Address>(&queue_index_key)
+            if let Some(user) = env
+                .storage()
+                .persistent()
+                .get::<DataKey, Address>(&queue_index_key)
             {
                 if Self::is_verification_pending(&env, &user) {
                     queue.push_back(user);

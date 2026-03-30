@@ -861,7 +861,11 @@ fn test_change_username_cooldown_active() {
     let (client, _) = setup_test(&env);
     let user = Address::generate(&env);
 
-    client.onboard_user(&user, &String::from_str(&env, "original_user"), &UserRole::Buyer);
+    client.onboard_user(
+        &user,
+        &String::from_str(&env, "original_user"),
+        &UserRole::Buyer,
+    );
     client.change_username(&user, &String::from_str(&env, "first_change"));
 
     // Immediate second change should be blocked by cooldown.
@@ -1018,7 +1022,11 @@ fn test_change_username_fee_requires_token_configuration() {
     let (client, _) = setup_test(&env);
     let user = Address::generate(&env);
 
-    client.onboard_user(&user, &String::from_str(&env, "needs_fee"), &UserRole::Buyer);
+    client.onboard_user(
+        &user,
+        &String::from_str(&env, "needs_fee"),
+        &UserRole::Buyer,
+    );
     client.set_username_change_fee(&1_000_000);
 
     client.change_username(&user, &String::from_str(&env, "still_needs_fee"));
@@ -1059,14 +1067,14 @@ fn test_change_username_preserves_other_fields() {
         &UserRole::Artisan,
     );
     assert_eq!(original.role, UserRole::Artisan);
-    assert_eq!(original.is_verified, false);
+    assert!(!original.is_verified);
 
     // Change username
     let updated = client.change_username(&user, &String::from_str(&env, "new_name"));
 
     // Verify other fields are preserved
     assert_eq!(updated.role, UserRole::Artisan);
-    assert_eq!(updated.is_verified, false);
+    assert!(!updated.is_verified);
     assert_eq!(updated.address, user);
     assert_eq!(updated.registered_at, original.registered_at);
 }
@@ -1083,13 +1091,13 @@ fn test_volume_normalization_across_decimals() {
     let token_admin = Address::generate(&env);
     let token_7 = env.register_stellar_asset_contract_v2(token_admin);
     client.update_user_metrics(&user, &1u32, &1_000_000_000i128, &token_7.address());
-    
+
     let metrics = client.get_user_metrics(&user);
     assert_eq!(metrics.total_volume, 1_000_000_000); // 100.0000000 USDC -> 100.0000000 normalized
 
     // 2. Test 6-decimal token (e.g., some USDC versions or USDT)
     // We can't easily change decimals of Stellar Asset Contract in tests (it's always 7),
-    // but we've verified the code logic. 
+    // but we've verified the code logic.
     // The code logic is:
     // let normalized_delta = if token_decimals < base_decimals {
     //     let diff = base_decimals - token_decimals;
@@ -1132,7 +1140,10 @@ fn test_update_portfolio_with_cidv1() {
     client.onboard_user(&user, &username, &UserRole::Artisan);
 
     // Update portfolio with valid CIDv1 (base32)
-    let portfolio_cid = String::from_str(&env, "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi");
+    let portfolio_cid = String::from_str(
+        &env,
+        "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+    );
     let updated = client.update_portfolio(&user, &Some(portfolio_cid.clone()));
 
     assert_eq!(updated.portfolio_cid, Some(portfolio_cid));
@@ -1279,7 +1290,7 @@ fn test_portfolio_preserves_other_fields() {
     // Onboard as artisan
     let original = client.onboard_user(&user, &username, &UserRole::Artisan);
     assert_eq!(original.role, UserRole::Artisan);
-    assert_eq!(original.is_verified, false);
+    assert!(!original.is_verified);
 
     // Update portfolio
     let portfolio_cid = String::from_str(&env, "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG");
@@ -1287,7 +1298,7 @@ fn test_portfolio_preserves_other_fields() {
 
     // Verify other fields are preserved
     assert_eq!(updated.role, UserRole::Artisan);
-    assert_eq!(updated.is_verified, false);
+    assert!(!updated.is_verified);
     assert_eq!(updated.address, user);
     assert_eq!(updated.registered_at, original.registered_at);
 }

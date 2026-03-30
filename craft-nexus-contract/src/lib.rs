@@ -5,9 +5,9 @@ use soroban_sdk::{
     BytesN, Env, Map, String, Symbol, TryFromVal, Val, Vec,
 };
 
-mod test;
 #[cfg(test)]
 mod enhanced_features_test;
+mod test;
 // Onboarding is a separate logical contract; only one `#[contract]` may be linked per WASM
 // artifact. Keep it in this crate for host tests (`cargo test`) but omit from guest builds.
 #[cfg(not(target_family = "wasm"))]
@@ -346,8 +346,6 @@ pub struct ArtisanFeeTierUpdatedEvent {
     pub fee_bps: u32,
 }
 
-
-
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
@@ -428,7 +426,13 @@ pub struct PartialRefundProposal {
 #[soroban_sdk::contractclient(name = "OnboardingClient")]
 pub trait OnboardingInterface {
     fn update_reputation(env: Env, address: Address, successful_delta: u32, disputed_delta: u32);
-    fn update_user_metrics(env: Env, address: Address, escrow_count_delta: u32, volume_delta: i128, token_address: Address);
+    fn update_user_metrics(
+        env: Env,
+        address: Address,
+        escrow_count_delta: u32,
+        volume_delta: i128,
+        token_address: Address,
+    );
 }
 #[contract]
 pub struct EscrowContract;
@@ -478,7 +482,12 @@ impl EscrowContract {
             .publish((Symbol::new(env, "escrow"), event.escrow_id), event);
     }
 
-    fn emit_config_updated(env: &Env, field_name: &str, old_value: ConfigValue, new_value: ConfigValue) {
+    fn emit_config_updated(
+        env: &Env,
+        field_name: &str,
+        old_value: ConfigValue,
+        new_value: ConfigValue,
+    ) {
         env.events().publish(
             (
                 Symbol::new(env, "config_updated"),
@@ -748,10 +757,7 @@ impl EscrowContract {
     /// Completes the two-step transfer process (#95).
     pub fn claim_admin(env: Env) {
         let mut config = Self::get_platform_config_internal(&env);
-        let pending = config
-            .pending_admin
-            .as_ref()
-            .expect("");
+        let pending = config.pending_admin.as_ref().expect("");
         pending.require_auth();
 
         config.admin = pending.clone();
@@ -759,7 +765,6 @@ impl EscrowContract {
 
         env.storage().persistent().set(&PLATFORM_FEE, &config);
         Self::extend_persistent(&env, &PLATFORM_FEE);
-
     }
     /// Create a new escrow for an order
     ///
@@ -890,11 +895,7 @@ impl EscrowContract {
         Self::extend_persistent(&env, &ids_key);
 
         let count_key = DataKey::EscrowCount;
-        let count: u32 = env
-            .storage()
-            .persistent()
-            .get(&count_key)
-            .unwrap_or(0u32);
+        let count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0u32);
         env.storage().persistent().set(&count_key, &(count + 1));
         Self::extend_persistent(&env, &count_key);
 
@@ -928,15 +929,18 @@ impl EscrowContract {
         let client = token::Client::new(&env, &token);
         client.transfer(&buyer, &env.current_contract_address(), &amount);
 
-        Self::emit_escrow_event(&env, EscrowEvent {
-            escrow_id: order_id as u64,
-            action: EscrowAction::Created,
-            buyer: buyer.clone(),
-            seller: seller.clone(),
-            amount,
-            token: token.clone(),
-            timestamp: env.ledger().timestamp(),
-        });
+        Self::emit_escrow_event(
+            &env,
+            EscrowEvent {
+                escrow_id: order_id as u64,
+                action: EscrowAction::Created,
+                buyer: buyer.clone(),
+                seller: seller.clone(),
+                amount,
+                token: token.clone(),
+                timestamp: env.ledger().timestamp(),
+            },
+        );
 
         Self::exit_reentry_guard(&env);
         escrow
@@ -1014,11 +1018,7 @@ impl EscrowContract {
 
     fn get_stored_escrow(env: &Env, order_id: u32) -> Escrow {
         let key = (ESCROW, order_id);
-        let stored: Val = env
-            .storage()
-            .persistent()
-            .get(&key)
-            .expect("");
+        let stored: Val = env.storage().persistent().get(&key).expect("");
         let map = Map::<Symbol, Val>::try_from_val(env, &stored).expect("");
         let version_key = Symbol::new(env, "version");
 
@@ -1099,13 +1099,22 @@ impl EscrowContract {
         Self::add_fee_token_to_index(env, token);
     }
 
-    fn transfer_platform_fee(env: &Env, token: &Address, platform_wallet: &Address, fee_amount: i128) {
+    fn transfer_platform_fee(
+        env: &Env,
+        token: &Address,
+        platform_wallet: &Address,
+        fee_amount: i128,
+    ) {
         if fee_amount <= 0 {
             return;
         }
 
         let token_client = token::Client::new(env, token);
-        token_client.transfer(&env.current_contract_address(), platform_wallet, &fee_amount);
+        token_client.transfer(
+            &env.current_contract_address(),
+            platform_wallet,
+            &fee_amount,
+        );
         Self::record_total_fees(env, token, fee_amount);
     }
 
@@ -1361,16 +1370,19 @@ impl EscrowContract {
     }
 
     /// Upgrade the contract's WASM code after the grace period has elapsed.
-    /// Can be called by anyone once the proposal is ready (#95).
+    /// Only the admin can execute the final upgrade once the proposal is ready (#137).
     pub fn update_wasm(env: Env) -> Result<(), Error> {
+        let admin = Self::get_admin(&env)?;
+        admin.require_auth();
+
         let proposal: WasmUpgradeProposal = env
             .storage()
             .persistent()
             .get(&DataKey::WasmUpgradeProposal)
-            .expect("");
+            .ok_or(Error::NoUpgradeProposed)?;
 
         if env.ledger().timestamp() < proposal.upgrade_at {
-            env.panic_with_error(crate::Error::UpgradeCooldownActive);
+            return Err(Error::UpgradeCooldownActive);
         }
 
         env.deployer()
@@ -1701,13 +1713,23 @@ impl EscrowContract {
                     // Seller wins dispute: successful for seller, disputed for buyer
                     client.update_reputation(&escrow.seller, &1u32, &0u32);
                     client.update_reputation(&escrow.buyer, &0u32, &1u32);
-                    client.update_user_metrics(&escrow.seller, &1u32, &escrow.amount, &escrow.token);
+                    client.update_user_metrics(
+                        &escrow.seller,
+                        &1u32,
+                        &escrow.amount,
+                        &escrow.token,
+                    );
                 }
                 Resolution::RefundToBuyer => {
                     // Buyer wins dispute: successful for buyer, disputed for seller
                     client.update_reputation(&escrow.buyer, &1u32, &0u32);
                     client.update_reputation(&escrow.seller, &0u32, &1u32);
-                    client.update_user_metrics(&escrow.seller, &1u32, &escrow.amount, &escrow.token);
+                    client.update_user_metrics(
+                        &escrow.seller,
+                        &1u32,
+                        &escrow.amount,
+                        &escrow.token,
+                    );
                 }
             }
         }
@@ -1787,7 +1809,7 @@ impl EscrowContract {
         let previous = config
             .moderator
             .clone()
-            .map(|address| ConfigValue::Address(address))
+            .map(ConfigValue::Address)
             .unwrap_or_else(|| ConfigValue::String(String::from_str(&env, "unset")));
         config.moderator = Some(moderator.clone());
         env.storage().persistent().set(&PLATFORM_FEE, &config);
@@ -1956,8 +1978,8 @@ impl EscrowContract {
         Self::extend_persistent(env, &(ESCROW, params.order_id));
 
         // Track active escrows (batch)
-        Self::update_active_obligations(&env, &params.buyer, 1);
-        Self::update_active_obligations(&env, &params.seller, 1);
+        Self::update_active_obligations(env, &params.buyer, 1);
+        Self::update_active_obligations(env, &params.seller, 1);
 
         // Transfer funds from buyer to contract
         let client = token::Client::new(env, &params.token);
@@ -1967,15 +1989,18 @@ impl EscrowContract {
             &params.amount,
         );
 
-        Self::emit_escrow_event(env, EscrowEvent {
-            escrow_id: params.order_id as u64,
-            action: EscrowAction::Created,
-            buyer: params.buyer.clone(),
-            seller: params.seller.clone(),
-            amount: params.amount,
-            token: params.token.clone(),
-            timestamp: env.ledger().timestamp(),
-        });
+        Self::emit_escrow_event(
+            env,
+            EscrowEvent {
+                escrow_id: params.order_id as u64,
+                action: EscrowAction::Created,
+                buyer: params.buyer.clone(),
+                seller: params.seller.clone(),
+                amount: params.amount,
+                token: params.token.clone(),
+                timestamp: env.ledger().timestamp(),
+            },
+        );
 
         Ok(params.order_id as u64)
     }
@@ -1989,7 +2014,7 @@ impl EscrowContract {
     ) -> Map<u32, Error> {
         let mut errors: Map<u32, Error> = Map::new(&env);
 
-        if escrows.len() > MAX_BATCH_SIZE as u32 {
+        if escrows.len() > MAX_BATCH_SIZE {
             env.panic_with_error(crate::Error::BatchLimitExceeded);
         }
 
@@ -2024,29 +2049,27 @@ impl EscrowContract {
     /// - Any validation error from individual escrows
     pub fn create_batch_escrow(
         env: Env,
-        batch_id: u64,
+        _batch_id: u64,
         escrows: soroban_sdk::Vec<EscrowCreateParams>,
     ) -> Result<soroban_sdk::Vec<u64>, Error> {
         Self::enter_reentry_guard(&env);
         Self::check_not_paused(&env);
 
         // Issue #111: Enforce batch size limit
-        if escrows.len() > MAX_BATCH_SIZE as u32 {
+        if escrows.len() > MAX_BATCH_SIZE {
             return Err(Error::BatchLimitExceeded);
         }
 
         let mut results = soroban_sdk::Vec::new(&env);
 
         // Early exit for empty batch
-        if escrows.len() == 0 {
+        if escrows.is_empty() {
             Self::exit_reentry_guard(&env);
             return Ok(results);
         }
 
         // Issue #111: Single authorization check - require auth from first buyer only
-        let first_params = escrows
-            .get(0)
-            .expect("");
+        let first_params = escrows.get(0).expect("");
         first_params.buyer.require_auth();
 
         // Issue #111: Validate all first (single pass)
@@ -2156,7 +2179,7 @@ impl EscrowContract {
         }
 
         // Consolidate global index updates for the entire batch
-        if results.len() > 0 {
+        if !results.is_empty() {
             let ids_key = DataKey::AllEscrowIds;
             let mut all_ids: soroban_sdk::Vec<u32> = env
                 .storage()
@@ -2172,11 +2195,7 @@ impl EscrowContract {
             Self::extend_persistent(&env, &ids_key);
 
             let count_key = DataKey::EscrowCount;
-            let count: u32 = env
-                .storage()
-                .persistent()
-                .get(&count_key)
-                .unwrap_or(0u32);
+            let count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0u32);
             env.storage()
                 .persistent()
                 .set(&count_key, &(count + results.len()));
@@ -2197,7 +2216,7 @@ impl EscrowContract {
     /// * `authorized_address` - Address releasing the funds (buyer)
     pub fn release_batch_funds(
         env: Env,
-        batch_id: u64,
+        _batch_id: u64,
         order_ids: soroban_sdk::Vec<u32>,
         authorized_address: Address,
     ) -> Result<soroban_sdk::Vec<u64>, Error> {
@@ -2309,7 +2328,8 @@ impl EscrowContract {
 
     /// Admin pauses or unpauses the contract.
     pub fn set_paused(env: Env, paused: bool) {
-        let admin = Self::get_admin(&env).unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
+        let admin = Self::get_admin(&env)
+            .unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
         admin.require_auth();
 
         let mut config = Self::get_platform_config_internal(&env);
@@ -2328,7 +2348,8 @@ impl EscrowContract {
 
     /// Admin assigns a custom fee tier (in basis points) for an artisan.
     pub fn set_artisan_fee_tier(env: Env, artisan: Address, fee_bps: u32) {
-        let admin = Self::get_admin(&env).unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
+        let admin = Self::get_admin(&env)
+            .unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
         admin.require_auth();
 
         if fee_bps > MAX_PLATFORM_FEE_BPS {
@@ -2359,7 +2380,8 @@ impl EscrowContract {
 
     /// Admin sets the referral reward percentage (basis points of the platform fee).
     pub fn set_referral_reward_bps(env: Env, bps: u32) {
-        let admin = Self::get_admin(&env).unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
+        let admin = Self::get_admin(&env)
+            .unwrap_or_else(|_| env.panic_with_error(crate::Error::Unauthorized));
         admin.require_auth();
         if bps > 5000 {
             env.panic_with_error(crate::Error::InvalidFee);
@@ -2874,7 +2896,6 @@ impl EscrowContract {
             .unwrap_or(0);
         count > 0
     }
-
 
     /// Create a new recurring escrow for recurring payments/subscriptions.
     pub fn create_recurring_escrow(
