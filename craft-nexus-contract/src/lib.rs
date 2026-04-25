@@ -357,6 +357,24 @@ pub struct ArtisanFeeTierUpdatedEvent {
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+pub struct TokensStakedEvent {
+    pub artisan: Address,
+    pub token: Address,
+    pub amount: i128,
+}
+
+#[contracttype]
+#[derive(Clone, Eq, PartialEq)]
+#[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+pub struct TokensUnstakedEvent {
+    pub artisan: Address,
+    pub token: Address,
+    pub amount: i128,
+}
+
+#[contracttype]
+#[derive(Clone, Eq, PartialEq)]
+#[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
 pub struct EscrowMetadata {
     pub ipfs_hash: Option<String>,
     pub metadata_hash: Option<Bytes>,
@@ -1939,11 +1957,7 @@ impl EscrowContract {
         }
 
         // Validate IPFS hash if provided
-        if let Some(ref ipfs) = params.ipfs_hash {
-            if !Self::validate_ipfs_cid(ipfs) {
-                return Err(Error::InvalidIpfsHash);
-            }
-        }
+        Self::validate_optional_ipfs_hash(env, &params.ipfs_hash);
 
         if let Some(hash) = &params.metadata_hash {
             if hash.len() != 32 {
@@ -1970,8 +1984,7 @@ impl EscrowContract {
         );
         let created_at = created_at_u64 as u32;
 
-        // Validate metadata
-        Self::validate_optional_ipfs_hash(env, &params.ipfs_hash);
+        // Validate metadata (validate_escrow_params already checked ipfs_hash via validate_optional_ipfs_hash)
         Self::validate_optional_metadata_hash(env, &params.metadata_hash);
 
         let escrow = Escrow {
@@ -2524,6 +2537,15 @@ impl EscrowContract {
         let cooldown_end = env.ledger().timestamp() + config.stake_cooldown as u64;
         env.storage().persistent().set(&cooldown_key, &cooldown_end);
         Self::extend_persistent(&env, &cooldown_key);
+
+        env.events().publish(
+            (Symbol::new(&env, "tokens_staked"), artisan.clone()),
+            TokensStakedEvent {
+                artisan,
+                token: new_stake.token.clone(),
+                amount,
+            },
+        );
     }
 
     /// Unstake previously staked tokens after the cooldown period has elapsed.
@@ -2561,6 +2583,15 @@ impl EscrowContract {
         // Return tokens to artisan
         let token_client = token::Client::new(&env, &token);
         token_client.transfer(&env.current_contract_address(), &artisan, &stake_data.amount);
+
+        env.events().publish(
+            (Symbol::new(&env, "tokens_unstaked"), artisan.clone()),
+            TokensUnstakedEvent {
+                artisan,
+                token,
+                amount: stake_data.amount,
+            },
+        );
     }
 
     /// Return the current staked amount for an artisan.
