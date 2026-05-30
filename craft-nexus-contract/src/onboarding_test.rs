@@ -1404,3 +1404,23 @@ fn test_set_moderator_unauthorized() {
     // Calling set_moderator without admin auth must panic.
     client.set_moderator(&user);
 }
+
+/// Issue #514 / #113 — reactivate_profile must reject callers without user authorization.
+#[test]
+#[should_panic]
+fn test_reactivate_profile_unauthorized() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let (client, _admin) = setup_test(&env);
+
+    let user = Address::generate(&env);
+    client.onboard_user(&user, &soroban_sdk::String::from_str(&env, "someuser"), &UserRole::Buyer);
+    client.deactivate_profile(&user);
+
+    // Clear all mocked auths — no authorization provided.
+    env.set_auths(&[]);
+
+    // Must panic: no auth for `user`.
+    client.reactivate_profile(&user);
+}
