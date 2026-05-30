@@ -240,10 +240,15 @@ pub enum DataKey {
     OnboardingContractAddress,
     /// Map of whitelisted token addresses (Address -> bool); enforcement active when non-empty
     WhitelistedTokens,
-    /// Ordered list of all escrow order IDs ever created (Vec<u32>); used for off-chain enumeration
+    /// DEPRECATED: Legacy monolithic Vec of all escrow order IDs.
+    /// New writes use [`DataKey::GlobalEscrowIdIndexed`] (#515). Kept for
+    /// lazy migration on the next index update or paginated read.
     AllEscrowIds,
-    /// Total count of escrows ever created; lightweight O(1) alternative to AllEscrowIds.len()
+    /// Total count of escrows ever created; O(1) length for indexed enumeration
     EscrowCount,
+    /// Indexed global escrow order ID by creation sequence (#515).
+    /// Each entry stores one `u32` order ID, avoiding Vec rewrites on batch create.
+    GlobalEscrowIdIndexed(u32),
     /// Fallback admin address for recovery if primary admin storage is corrupted (#240)
     FallbackAdmin,
     /// Timestamp when admin recovery mechanism becomes available (time-lock safety)
@@ -1171,57 +1176,48 @@ impl CraftNexusContract {
         env.storage().temporary().remove(&DataKey::ReentryGuard);
     }
 
-    /// Atomically updates both AllEscrowIds and EscrowCount to maintain consistency.
-    /// This function ensures that the count and ID list never diverge, which is critical
-    /// for off-chain enumeration and audit consistency (Issue #226).
+    /// Atomically appends one escrow ID to the indexed global registry and
+    /// increments `EscrowCount` (#515 / Issue #226).
     fn update_escrow_indices_atomic(env: &Env, order_id: u32) {
-        // Update the global escrow ID list
-        let ids_key = DataKey::AllEscrowIds;
-        let mut all_ids: soroban_sdk::Vec<u32> = env
-            .storage()
-            .persistent()
-            .get(&ids_key)
-            .unwrap_or(soroban_sdk::Vec::new(&env));
-        all_ids.push_back(order_id);
-        env.storage().persistent().set(&ids_key, &all_ids);
-        Self::extend_persistent(&env, &ids_key);
+        // Issue #515 — O(1) indexed append replaces monolithic AllEscrowIds Vec
+        // rewrites. Legacy Vec entries are migrated lazily on first touch.
+        Self::migrate_legacy_all_escrow_ids(env);
 
-        // Update the escrow count in lockstep with the ID list
         let count_key = DataKey::EscrowCount;
-        let count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0u32);
+        let count = Self::get_persistent_u32(env, &count_key);
+
+        let index_key = DataKey::GlobalEscrowIdIndexed(count);
+        env.storage().persistent().set(&index_key, &order_id);
+        Self::extend_persistent(env, &index_key);
+
         env.storage().persistent().set(&count_key, &(count + 1));
-        Self::extend_persistent(&env, &count_key);
+        Self::extend_persistent(env, &count_key);
     }
 
-    /// Atomically updates both AllEscrowIds and EscrowCount for batch operations.
-    /// Ensures all order IDs are added before count is incremented, preventing races.
+    /// Atomically appends escrow IDs to the indexed global registry for batch
+    /// operations (#515). Each ID is stored under its own key so batch creates
+    /// avoid rewriting a growing Vec.
     fn update_escrow_indices_batch_atomic(env: &Env, order_ids: &soroban_sdk::Vec<u32>) {
         if order_ids.is_empty() {
             return;
         }
 
-        // Batch update: add all IDs first
-        let ids_key = DataKey::AllEscrowIds;
-        let mut all_ids: soroban_sdk::Vec<u32> = env
-            .storage()
-            .persistent()
-            .get(&ids_key)
-            .unwrap_or(soroban_sdk::Vec::new(&env));
+        Self::migrate_legacy_all_escrow_ids(env);
+
+        let count_key = DataKey::EscrowCount;
+        let mut count = Self::get_persistent_u32(env, &count_key);
+
         for i in 0..order_ids.len() {
             if let Some(id) = order_ids.get(i) {
-                all_ids.push_back(id);
+                let index_key = DataKey::GlobalEscrowIdIndexed(count);
+                env.storage().persistent().set(&index_key, &id);
+                Self::extend_persistent(env, &index_key);
+                count += 1;
             }
         }
-        env.storage().persistent().set(&ids_key, &all_ids);
-        Self::extend_persistent(&env, &ids_key);
 
-        // Then increment count by the number of IDs added
-        let count_key = DataKey::EscrowCount;
-        let count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0u32);
-        env.storage()
-            .persistent()
-            .set(&count_key, &(count + order_ids.len() as u32));
-        Self::extend_persistent(&env, &count_key);
+        env.storage().persistent().set(&count_key, &count);
+        Self::extend_persistent(env, &count_key);
     }
 
     // IMPORTANT: this validation is intentionally scoped to escrow creation-time
@@ -1338,6 +1334,50 @@ impl CraftNexusContract {
         env.storage()
             .persistent()
             .extend_ttl(key, TTL_THRESHOLD, TTL_EXTENSION);
+    }
+
+    /// Read a persistent `u32` and extend its TTL when the key exists (#515).
+    fn get_persistent_u32(env: &Env, key: &DataKey) -> u32 {
+        let value = env.storage().persistent().get(key).unwrap_or(0u32);
+        if env.storage().persistent().has(key) {
+            Self::extend_persistent(env, key);
+        }
+        value
+    }
+
+    /// Migrate legacy `AllEscrowIds` Vec storage to indexed keys (#515).
+    fn migrate_legacy_all_escrow_ids(env: &Env) {
+        let legacy_key = DataKey::AllEscrowIds;
+        if !env.storage().persistent().has(&legacy_key) {
+            return;
+        }
+
+        let all_ids: soroban_sdk::Vec<u32> = env
+            .storage()
+            .persistent()
+            .get(&legacy_key)
+            .unwrap_or(soroban_sdk::Vec::new(env));
+
+        for i in 0..all_ids.len() {
+            if let Some(id) = all_ids.get(i) {
+                let index_key = DataKey::GlobalEscrowIdIndexed(i);
+                if !env.storage().persistent().has(&index_key) {
+                    env.storage().persistent().set(&index_key, &id);
+                    Self::extend_persistent(env, &index_key);
+                }
+            }
+        }
+
+        let count_key = DataKey::EscrowCount;
+        let stored_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        if stored_count < all_ids.len() {
+            env.storage()
+                .persistent()
+                .set(&count_key, &(all_ids.len() as u32));
+            Self::extend_persistent(env, &count_key);
+        }
+
+        env.storage().persistent().remove(&legacy_key);
     }
 
     /// Returns the configured maximum release window (in seconds).
@@ -4845,18 +4885,15 @@ impl CraftNexusContract {
     /// `get_all_escrow_ids_iterative` to paginate the full ID set without
     /// hitting Soroban CPU/memory resource limits.
     pub fn get_escrow_count(env: Env) -> u32 {
-        let key = DataKey::EscrowCount;
-        env.storage()
-            .persistent()
-            .get::<DataKey, u32>(&key)
-            .unwrap_or(0)
+        Self::migrate_legacy_all_escrow_ids(&env);
+        Self::get_persistent_u32(&env, &DataKey::EscrowCount)
     }
 
     /// Returns a page of all escrow order IDs created on the platform, in creation order.
     ///
     /// This is the recommended pattern for frontends to enumerate every escrow without
     /// hitting Soroban resource limits. The function reads a bounded slice of the
-    /// globally maintained `AllEscrowIds` index; no on-chain loops proportional to
+    /// indexed `GlobalEscrowIdIndexed` registry; no on-chain loops proportional to
     /// the total escrow count are performed at call time.
     ///
     /// # Usage pattern (frontend / off-chain)
@@ -4873,8 +4910,9 @@ impl CraftNexusContract {
     /// To enumerate storage keys directly via the RPC without calling this function,
     /// use the `getLedgerEntries` method or the experimental `getContractData` cursor
     /// endpoint.  Relevant key patterns:
-    /// - `DataKey::AllEscrowIds`           – the full ordered ID list (this index)
+    /// - `DataKey::GlobalEscrowIdIndexed(index)` – indexed global escrow ID (#515)
     /// - `DataKey::EscrowCount`            – u32 total count
+    /// - `DataKey::AllEscrowIds`           – DEPRECATED legacy Vec index
     /// - `(ESCROW, order_id: u32)`         – individual escrow struct
     /// - `DataKey::BuyerEscrows(address)`  – DEPRECATED: Legacy Vec<u64> of IDs for a buyer
     /// - `DataKey::SellerEscrows(address)` – DEPRECATED: Legacy Vec<u64> of IDs for a seller
@@ -4895,22 +4933,27 @@ impl CraftNexusContract {
             return soroban_sdk::Vec::new(&env);
         }
 
-        let key = DataKey::AllEscrowIds;
-        let all_ids: soroban_sdk::Vec<u32> = env
-            .storage()
-            .persistent()
-            .get(&key)
-            .unwrap_or(soroban_sdk::Vec::new(&env));
+        Self::migrate_legacy_all_escrow_ids(&env);
 
+        let total = Self::get_persistent_u32(&env, &DataKey::EscrowCount);
         let start = page * limit;
-        let len = all_ids.len();
 
-        if start >= len {
+        if start >= total {
             return soroban_sdk::Vec::new(&env);
         }
 
-        let end = (start + limit).min(len);
-        all_ids.slice(start..end)
+        let end = (start + limit).min(total);
+        let mut result = soroban_sdk::Vec::new(&env);
+
+        for index in start..end {
+            let index_key = DataKey::GlobalEscrowIdIndexed(index);
+            if let Some(id) = env.storage().persistent().get(&index_key) {
+                result.push_back(id);
+                Self::extend_persistent(&env, &index_key);
+            }
+        }
+
+        result
     }
 
     /// Accept the outstanding partial refund proposal for a disputed escrow.
