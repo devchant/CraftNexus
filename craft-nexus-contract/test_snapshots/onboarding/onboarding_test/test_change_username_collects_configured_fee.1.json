@@ -924,7 +924,7 @@
                             "symbol": "action"
                           },
                           "val": {
-                            "symbol": "username_revoked"
+                            "string": "username_revoked"
                           }
                         },
                         {

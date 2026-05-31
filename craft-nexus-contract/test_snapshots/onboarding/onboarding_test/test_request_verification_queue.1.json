@@ -614,7 +614,7 @@
                             "symbol": "action"
                           },
                           "val": {
-                            "symbol": "requested"
+                            "string": "requested"
                           }
                         },
                         {

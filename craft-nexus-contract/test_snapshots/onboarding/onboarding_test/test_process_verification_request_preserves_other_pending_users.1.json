@@ -815,7 +815,7 @@
                             "symbol": "action"
                           },
                           "val": {
-                            "symbol": "requested"
+                            "string": "requested"
                           }
                         },
                         {
@@ -843,7 +843,7 @@
                             "symbol": "action"
                           },
                           "val": {
-                            "symbol": "approved"
+                            "string": "approved"
                           }
                         },
                         {
@@ -917,7 +917,7 @@
                             "symbol": "action"
                           },
                           "val": {
-                            "symbol": "requested"
+                            "string": "requested"
                           }
                         },
                         {
