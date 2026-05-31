@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Instagram } from "../icon";
+import { Facebook, Instagram } from "../ui/Icon";
 
 // Reusable style constants
 const sectionTitleClass =

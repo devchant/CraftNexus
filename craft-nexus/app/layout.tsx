@@ -4,7 +4,7 @@ import { Geist, Geist_Mono, Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
 import { IBM_Plex_Serif, Poppins } from "next/font/google";
-import RouteWrapper from "@/components/RouteWrapper";
+import RouteWrapper from "@/components/layout/RouteWrapper";
 
 const ibmPlexSerif = IBM_Plex_Serif({
   weight: ["400", "600", "700"],

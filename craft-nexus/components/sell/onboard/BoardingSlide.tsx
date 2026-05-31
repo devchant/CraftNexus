@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { OnboardingSlideData } from "./onboarding-data";
+import { OnboardingSlideData } from "./OnboardingData";
 
 interface OnboardingSlideProps {
   slide: OnboardingSlideData;

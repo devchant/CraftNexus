@@ -1,5 +1,5 @@
-import CategorySection from "@/components/landing/BrowseCategories";
-import CategoriesResult from "@/components/landing/CategoriesResult";
+import CategorySection from "@/components/features/landing/BrowseCategories";
+import CategoriesResult from "@/components/features/landing/CategoriesResult";
 import FeatureBar from "@/components/organisms/FeatureBar";
 import FeaturedCourses from "@/components/organisms/FeaturedCourses";
 import HeroSection from "@/components/organisms/HomepageHero";

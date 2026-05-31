@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Navigation } from "@/components/organisms/Navigation";
-import Footer from "@/components/organisms/footer";
+import Footer from "@/components/organisms/Footer";
 import { useMemo, memo } from "react";
 
 interface RouteWrapperProps {

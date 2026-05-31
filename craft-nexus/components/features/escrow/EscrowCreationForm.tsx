@@ -12,7 +12,7 @@ import {
   getPlatformFeePercentage,
   getEscrowContractAddress,
 } from "@/lib/stellar/escrow";
-import { useEscrowWallet, TransactionStatusDisplay, TransactionStatus } from "@/components/wallet/EscrowWalletIntegration";
+import { useEscrowWallet, TransactionStatusDisplay, TransactionStatus } from "@/components/features/wallet/EscrowWalletIntegration";
 import { USDC_ISSUER, STELLAR_NETWORK } from "@/lib/stellar/config";
 
 export interface EscrowFormData {

@@ -9,19 +9,19 @@ import { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import {
   EscrowCreationForm,
-} from "@/components/escrow/EscrowCreationForm";
+} from "@/components/features/escrow/EscrowCreationForm";
 import {
   EscrowStatus,
-} from "@/components/escrow/EscrowStatus";
+} from "@/components/features/escrow/EscrowStatus";
 import {
   EscrowActions,
-} from "@/components/escrow/EscrowActions";
+} from "@/components/features/escrow/EscrowActions";
 import {
   TransactionHistory,
   useTransactionHistory,
   EscrowTransaction,
-} from "@/components/escrow/TransactionHistory";
-import { useEscrowWallet } from "@/components/wallet/EscrowWalletIntegration";
+} from "@/components/features/escrow/TransactionHistory";
+import { useEscrowWallet } from "@/components/features/wallet/EscrowWalletIntegration";
 import {
   EscrowService,
   Escrow,

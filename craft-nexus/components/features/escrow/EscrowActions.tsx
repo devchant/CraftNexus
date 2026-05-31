@@ -11,7 +11,7 @@ import {
   Escrow,
   EscrowStatusEnum,
 } from "@/lib/stellar/escrow";
-import { useEscrowWallet, TransactionStatusDisplay, TransactionStatus } from "@/components/wallet/EscrowWalletIntegration";
+import { useEscrowWallet, TransactionStatusDisplay, TransactionStatus } from "@/components/features/wallet/EscrowWalletIntegration";
 import { PLATFORM_COMMISSION_WALLET } from "@/lib/stellar/config";
 
 export interface EscrowActionsProps {
