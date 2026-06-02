@@ -1,9 +1,13 @@
 #![no_std]
 #![allow(clippy::too_many_arguments)]
 #![allow(unexpected_cfgs)]
+// use soroban_sdk::{
+//     contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Bytes,
+//     BytesN, Env, IntoVal, Map, String, Symbol, TryFromVal, Val, Vec,
+// };
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Bytes,
-    BytesN, Env, IntoVal, Map, String, Symbol, TryFromVal, Val, Vec,
+    contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Map, String, Symbol,
+    TryFromVal, Val, Vec,
 };
 
 #[cfg(test)]
@@ -1225,16 +1229,7 @@ impl CraftNexusContract {
         );
     }
 
-    fn enter_reentry_guard(env: &Env) {
-        if env.storage().temporary().has(&DataKey::ReentryGuard) {
-            env.panic_with_error(crate::Error::ReentryDetected);
-        }
-        env.storage().temporary().set(&DataKey::ReentryGuard, &true);
-    }
-
-    fn exit_reentry_guard(env: &Env) {
-        env.storage().temporary().remove(&DataKey::ReentryGuard);
-    }
+   
 
     /// Atomically appends one escrow ID to the indexed global registry and
     /// increments `EscrowCount` (#515 / Issue #226).
@@ -2778,8 +2773,8 @@ impl CraftNexusContract {
             .unwrap_or_else(|| env.panic_with_error(crate::Error::PlatformNotInitialized))
     }
 
-    ffn try_get_escrow_readonly(env: &Env, order_id: u32) -> Escrow {
-        let key = (ESCROW, order_id);
+    fn try_get_escrow_readonly(env: &Env, order_id: u32) -> Escrow {
+            let key = (ESCROW, order_id);
         let stored: Val = env
             .storage()
             .persistent()
@@ -5892,4 +5887,16 @@ impl CraftNexusContract {
 
         Ok(unallocated)
     }
+
+    fn enter_reentry_guard(env: &Env) {
+        if env.storage().temporary().has(&DataKey::ReentryGuard) {
+            env.panic_with_error(crate::Error::ReentryDetected);
+        }
+        env.storage().temporary().set(&DataKey::ReentryGuard, &true);
+    }
+
+    fn exit_reentry_guard(env: &Env) {
+        env.storage().temporary().remove(&DataKey::ReentryGuard);
+    }
+
 }
