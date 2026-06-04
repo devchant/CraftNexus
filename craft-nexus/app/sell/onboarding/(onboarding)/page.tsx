@@ -1,7 +1,7 @@
 "use client";
 
-import OnboardingSlide from "@/components/sell/onboard/boarding-slide";
-import { ONBOARDING_SLIDES } from "@/components/sell/onboard/onboarding-data";
+import OnboardingSlide from "@/components/sell/onboard/BoardingSlide";
+import { ONBOARDING_SLIDES } from "@/components/sell/onboard/OnboardingData";
 import { useRouter } from "next/navigation";
 
 /**

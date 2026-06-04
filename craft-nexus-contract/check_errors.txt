@@ -1,0 +1,698 @@
+    Checking craft-nexus-contract v0.1.0 (/Users/backenddevopsdeveloper/Downloads/DRIPS/vida-CraftNexus/craft-nexus-contract)
+error: cannot find macro `vec` in this scope
+   --> src/min_release_window_test.rs:437:31
+    |
+437 |     let reasonable_minimums = vec![
+    |                               ^^^
+    |
+help: consider importing this macro
+    |
+  3 + use soroban_sdk::vec;
+    |
+
+error: cannot find macro `vec` in this scope
+   --> src/min_release_window_test.rs:339:19
+    |
+339 |     let windows = vec![
+    |                   ^^^
+    |
+help: consider importing this macro
+    |
+  3 + use soroban_sdk::vec;
+    |
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:57:22
+   |
+57 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:67:22
+   |
+67 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:77:22
+   |
+77 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:89:22
+   |
+89 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/lib.rs:27:22
+   |
+27 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:179:22
+    |
+179 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:281:22
+    |
+281 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:289:22
+    |
+289 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:297:22
+    |
+297 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:307:22
+    |
+307 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:324:22
+    |
+324 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:336:22
+    |
+336 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:348:22
+    |
+348 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:360:22
+    |
+360 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:381:22
+    |
+381 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:399:22
+    |
+399 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:418:22
+    |
+418 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:433:22
+    |
+433 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:449:22
+    |
+449 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:462:22
+    |
+462 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:475:22
+    |
+475 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:485:22
+    |
+485 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:494:22
+    |
+494 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:502:22
+    |
+502 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:511:22
+    |
+511 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:520:22
+    |
+520 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:529:22
+    |
+529 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:537:22
+    |
+537 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:545:22
+    |
+545 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:554:22
+    |
+554 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:573:22
+    |
+573 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:586:22
+    |
+586 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:602:22
+    |
+602 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:629:22
+    |
+629 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:641:22
+    |
+641 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:650:22
+    |
+650 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:666:22
+    |
+666 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:682:22
+    |
+682 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:707:22
+    |
+707 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:718:22
+    |
+718 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:730:22
+    |
+730 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:739:22
+    |
+739 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:759:22
+    |
+759 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused imports: `Error` and `Escrow`
+ --> src/expired_dispute_fee_test.rs:4:51
+  |
+4 |     CraftNexusContract, CraftNexusContractClient, Error, Escrow, EscrowStatus,
+  |                                                   ^^^^^  ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Symbol`
+ --> src/expired_dispute_fee_test.rs:9:26
+  |
+9 |     token, Address, Env, Symbol,
+  |                          ^^^^^^
+
+warning: unused import: `Error`
+ --> src/min_release_window_test.rs:3:59
+  |
+3 | use crate::{CraftNexusContract, CraftNexusContractClient, Error};
+  |                                                           ^^^^^
+
+warning: unused import: `crate::onboarding::OnboardingContract`
+ --> src/scalability_test.rs:4:5
+  |
+4 | use crate::onboarding::OnboardingContract;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `String` and `Symbol`
+ --> src/scalability_test.rs:7:26
+  |
+7 |     token, Address, Env, String, Symbol,
+  |                          ^^^^^^  ^^^^^^
+
+warning: unused import: `Ledger`
+ --> src/scalability_test.rs:6:31
+  |
+6 |     testutils::{Address as _, Ledger},
+  |                               ^^^^^^
+
+warning: unused variable: `escrow`
+   --> src/enhanced_features_test.rs:139:10
+    |
+139 |     let (escrow, onboarding, buyer, _, _, _, _, _) = setup_enhanced_test(&env);
+    |          ^^^^^^ help: if this is intentional, prefix it with an underscore: `_escrow`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+error[E0382]: use of moved value: `onboarding_contract`
+  --> src/expired_dispute_fee_test.rs:68:9
+   |
+48 |     let onboarding_contract = Address::generate(&env);
+   |         ------------------- move occurs because `onboarding_contract` has type `soroban_sdk::Address`, which does not implement the `Copy` trait
+...
+56 |         &Some(onboarding_contract),
+   |               ------------------- value moved here
+...
+68 |         onboarding_contract,
+   |         ^^^^^^^^^^^^^^^^^^^ value used here after move
+   |
+help: consider cloning the value if the performance cost is acceptable
+   |
+56 |         &Some(onboarding_contract.clone()),
+   |                                  ++++++++
+
+warning: unused variable: `token`
+  --> src/expired_dispute_fee_test.rs:40:9
+   |
+40 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+  --> src/expired_dispute_fee_test.rs:98:30
+   |
+98 |     let (_, client, _, _, _, admin, _, _, _) = setup_test();
+   |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:148:50
+    |
+148 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:193:50
+    |
+193 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:228:50
+    |
+228 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:271:50
+    |
+271 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:369:50
+    |
+369 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:407:50
+    |
+407 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:442:30
+    |
+442 |     let (_, client, _, _, _, admin, _, _, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `token`
+  --> src/min_release_window_test.rs:39:9
+   |
+39 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:153:30
+    |
+153 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:164:48
+    |
+164 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:184:48
+    |
+184 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:217:30
+    |
+217 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:225:30
+    |
+225 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:237:48
+    |
+237 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:280:48
+    |
+280 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `env`
+   --> src/min_release_window_test.rs:301:10
+    |
+301 |     let (env, client, buyer, seller, token_addr, _, _) = setup_test();
+    |          ^^^ help: if this is intentional, prefix it with an underscore: `_env`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:362:30
+    |
+362 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:386:50
+    |
+386 |     let (env, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:413:50
+    |
+413 |     let (env, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `token`
+  --> src/scalability_test.rs:36:9
+   |
+36 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `seller`
+   --> src/scalability_test.rs:202:30
+    |
+202 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                              ^^^^^^ help: if this is intentional, prefix it with an underscore: `_seller`
+
+warning: unused variable: `token`
+   --> src/scalability_test.rs:202:38
+    |
+202 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+   --> src/scalability_test.rs:202:45
+    |
+202 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                                             ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `seller`
+   --> src/scalability_test.rs:244:30
+    |
+244 |     let (env, client, buyer, seller, token, _, _, _) = setup_test();
+    |                              ^^^^^^ help: if this is intentional, prefix it with an underscore: `_seller`
+
+warning: unused variable: `token`
+   --> src/scalability_test.rs:244:38
+    |
+244 |     let (env, client, buyer, seller, token, _, _, _) = setup_test();
+    |                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `previous_admin`
+    --> src/lib.rs:1650:13
+     |
+1650 |         let previous_admin = config.admin.clone();
+     |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_previous_admin`
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:4516:13
+     |
+4516 |         let mut queue: soroban_sdk::Vec<StakeDeposit> = env
+     |             ----^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0382`.
+warning: `craft-nexus-contract` (lib test) generated 79 warnings
+error: could not compile `craft-nexus-contract` (lib test) due to 3 previous errors; 79 warnings emitted

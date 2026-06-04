@@ -68,6 +68,14 @@
                   "map": [
                     {
                       "key": {
+                        "symbol": "auto_verify_enabled"
+                      },
+                      "val": {
+                        "bool": true
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "escrow_contract"
                       },
                       "val": "void"
@@ -435,6 +443,14 @@
               "map": [
                 {
                   "key": {
+                    "symbol": "auto_verify_enabled"
+                  },
+                  "val": {
+                    "bool": true
+                  }
+                },
+                {
+                  "key": {
                     "symbol": "escrow_contract"
                   },
                   "val": "void"
@@ -548,7 +564,7 @@
             "data": {
               "vec": [
                 {
-                  "string": "caught panic 'Username too short' from contract function 'Symbol(obj#83)'"
+                  "string": "caught panic 'Username too short' from contract function 'Symbol(obj#87)'"
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"

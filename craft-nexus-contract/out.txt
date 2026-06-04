@@ -1,0 +1,788 @@
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:57:22
+   |
+57 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:67:22
+   |
+67 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:77:22
+   |
+77 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/onboarding.rs:89:22
+   |
+89 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+  --> src/lib.rs:27:22
+   |
+27 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+   |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+   |
+   = note: no expected values for `feature`
+   = help: consider adding `testutils` as a feature in `Cargo.toml`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:179:22
+    |
+179 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:281:22
+    |
+281 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:289:22
+    |
+289 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:297:22
+    |
+297 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:307:22
+    |
+307 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:324:22
+    |
+324 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:336:22
+    |
+336 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:348:22
+    |
+348 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:360:22
+    |
+360 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:381:22
+    |
+381 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:399:22
+    |
+399 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:418:22
+    |
+418 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:433:22
+    |
+433 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:449:22
+    |
+449 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:462:22
+    |
+462 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:475:22
+    |
+475 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:485:22
+    |
+485 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:494:22
+    |
+494 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:502:22
+    |
+502 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:511:22
+    |
+511 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:520:22
+    |
+520 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:529:22
+    |
+529 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:537:22
+    |
+537 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:545:22
+    |
+545 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:554:22
+    |
+554 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:573:22
+    |
+573 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:586:22
+    |
+586 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:602:22
+    |
+602 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:629:22
+    |
+629 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:641:22
+    |
+641 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:650:22
+    |
+650 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:666:22
+    |
+666 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:682:22
+    |
+682 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:707:22
+    |
+707 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:718:22
+    |
+718 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:730:22
+    |
+730 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:739:22
+    |
+739 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition value: `testutils`
+   --> src/lib.rs:759:22
+    |
+759 | #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
+    |                      ^^^^^^^^^^^^^^^^^^^^^ help: remove the condition
+    |
+    = note: no expected values for `feature`
+    = help: consider adding `testutils` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused imports: `Error` and `Escrow`
+ --> src/expired_dispute_fee_test.rs:4:51
+  |
+4 |     CraftNexusContract, CraftNexusContractClient, Error, Escrow, EscrowStatus,
+  |                                                   ^^^^^  ^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Symbol`
+ --> src/expired_dispute_fee_test.rs:9:26
+  |
+9 |     token, Address, Env, Symbol,
+  |                          ^^^^^^
+
+warning: unused import: `Error`
+ --> src/min_release_window_test.rs:3:59
+  |
+3 | use crate::{CraftNexusContract, CraftNexusContractClient, Error};
+  |                                                           ^^^^^
+
+warning: unused import: `crate::onboarding::OnboardingContract`
+ --> src/scalability_test.rs:4:5
+  |
+4 | use crate::onboarding::OnboardingContract;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused imports: `String` and `Symbol`
+ --> src/scalability_test.rs:7:26
+  |
+7 |     token, Address, Env, String, Symbol,
+  |                          ^^^^^^  ^^^^^^
+
+warning: unused import: `Ledger`
+ --> src/scalability_test.rs:6:31
+  |
+6 |     testutils::{Address as _, Ledger},
+  |                               ^^^^^^
+
+warning: unused variable: `escrow`
+   --> src/enhanced_features_test.rs:139:10
+    |
+139 |     let (escrow, onboarding, buyer, _, _, _, _, _) = setup_enhanced_test(&env);
+    |          ^^^^^^ help: if this is intentional, prefix it with an underscore: `_escrow`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `token`
+  --> src/expired_dispute_fee_test.rs:41:9
+   |
+41 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+  --> src/expired_dispute_fee_test.rs:99:30
+   |
+99 |     let (_, client, _, _, _, admin, _, _, _) = setup_test();
+   |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:149:50
+    |
+149 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:194:50
+    |
+194 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:229:50
+    |
+229 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:272:50
+    |
+272 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:370:50
+    |
+370 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:408:50
+    |
+408 |     let (env, client, buyer, seller, token_addr, admin, platform_wallet, _, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/expired_dispute_fee_test.rs:443:30
+    |
+443 |     let (_, client, _, _, _, admin, _, _, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `token`
+  --> src/min_release_window_test.rs:40:9
+   |
+40 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:154:30
+    |
+154 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:165:48
+    |
+165 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:185:48
+    |
+185 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:218:30
+    |
+218 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:226:30
+    |
+226 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:238:48
+    |
+238 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:281:48
+    |
+281 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `env`
+   --> src/min_release_window_test.rs:302:10
+    |
+302 |     let (env, client, buyer, seller, token_addr, _, _) = setup_test();
+    |          ^^^ help: if this is intentional, prefix it with an underscore: `_env`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:334:48
+    |
+334 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:363:30
+    |
+363 |     let (_, client, _, _, _, admin, _) = setup_test();
+    |                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:387:50
+    |
+387 |     let (env, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:414:50
+    |
+414 |     let (env, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                  ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `admin`
+   --> src/min_release_window_test.rs:435:48
+    |
+435 |     let (_, client, buyer, seller, token_addr, admin, _) = setup_test();
+    |                                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `token`
+  --> src/scalability_test.rs:37:9
+   |
+37 |     let token = token::Client::new(&env, &token_id.address());
+   |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `seller`
+   --> src/scalability_test.rs:208:30
+    |
+208 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                              ^^^^^^ help: if this is intentional, prefix it with an underscore: `_seller`
+
+warning: unused variable: `token`
+   --> src/scalability_test.rs:208:38
+    |
+208 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `admin`
+   --> src/scalability_test.rs:208:45
+    |
+208 |     let (env, client, buyer, seller, token, admin, _, _) = setup_test();
+    |                                             ^^^^^ help: if this is intentional, prefix it with an underscore: `_admin`
+
+warning: unused variable: `seller`
+   --> src/scalability_test.rs:262:30
+    |
+262 |     let (env, client, buyer, seller, token, _, _, _) = setup_test();
+    |                              ^^^^^^ help: if this is intentional, prefix it with an underscore: `_seller`
+
+warning: unused variable: `token`
+   --> src/scalability_test.rs:262:38
+    |
+262 |     let (env, client, buyer, seller, token, _, _, _) = setup_test();
+    |                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_token`
+
+warning: unused variable: `previous_admin`
+    --> src/lib.rs:1650:13
+     |
+1650 |         let previous_admin = config.admin.clone();
+     |             ^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_previous_admin`
+
+warning: variable does not need to be mutable
+    --> src/lib.rs:4512:13
+     |
+4512 |         let mut queue: soroban_sdk::Vec<StakeDeposit> = env
+     |             ----^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `ONBOARD_CALL_FAILED` is never used
+   --> src/lib.rs:168:7
+    |
+168 | const ONBOARD_CALL_FAILED: Symbol = symbol_short!("OB_FAIL");
+    |       ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `get_onboarding_client` is never used
+    --> src/lib.rs:1237:8
+     |
+ 801 | impl CraftNexusContract {
+     | ----------------------- associated function in this implementation
+...
+1237 |     fn get_onboarding_client(env: &Env) -> Option<OnboardingClient<'_>> {
+     |        ^^^^^^^^^^^^^^^^^^^^^
+
+warning: constant `EscrowContract` should have an upper case name
+   --> src/lib.rs:796:11
+    |
+796 | pub const EscrowContract: CraftNexusContract = CraftNexusContract;
+    |           ^^^^^^^^^^^^^^ help: convert the identifier to upper case: `ESCROW_CONTRACT`
+    |
+    = note: `#[warn(non_upper_case_globals)]` (part of `#[warn(nonstandard_style)]`) on by default
+
+warning: `craft-nexus-contract` (lib test) generated 84 warnings (run `cargo fix --lib -p craft-nexus-contract --tests` to apply 37 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/lib.rs (target/debug/deps/craft_nexus_contract-6339bbcda658a7f7)
+
+running 1 test
+test min_release_window_test::test_create_escrow_below_minimum_fails - should panic ... FAILED
+
+failures:
+
+---- min_release_window_test::test_create_escrow_below_minimum_fails stdout ----
+
+thread 'min_release_window_test::test_create_escrow_below_minimum_fails' (691557) panicked at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:768:9:
+HostError: Error(Contract, #23)
+
+Event log (newest first):
+   0: [Diagnostic Event] topics:[error, Error(Contract, #23)], data:"escalating error to panic"
+   1: [Diagnostic Event] topics:[error, Error(Contract, #23)], data:["contract call failed", create_escrow, [CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4, CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, 1000000, 1, 3600]]
+   2: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:"caught error from function"
+   3: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:"escalating error to panic"
+   4: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:["failing with contract error", 23]
+   5: [Diagnostic Event] topics:[fn_call, Bytes(0000000000000000000000000000000000000000000000000000000000000001), create_escrow], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4, CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, 1000000, 1, 3600]
+   6: [Diagnostic Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[fn_return, initialize], data:Void
+   7: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, onboarding_contract], data:{field_name: onboarding_contract, new_value: [Address, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON], old_value: [String, "unset"]}
+   8: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, platform_wallet], data:{field_name: platform_wallet, new_value: [Address, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4], old_value: [String, "unset"]}
+   9: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, platform_fee_bps], data:{field_name: platform_fee_bps, new_value: [U32, 500], old_value: [String, "unset"]}
+   10: [Diagnostic Event] topics:[fn_call, Bytes(0000000000000000000000000000000000000000000000000000000000000001), initialize], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4, 500, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON]
+   11: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, mint], data:Void
+   12: [Contract Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[mint, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, "aaa:GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE"], data:10000000
+   13: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), mint], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, 10000000]
+   14: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, set_admin], data:Void
+   15: [Contract Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[set_admin, GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE, "aaa:GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE"], data:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM
+   16: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), set_admin], data:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM
+   17: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, init_asset], data:Void
+   18: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), init_asset], data:Bytes(0000000161616100000000000000000000000000000000000000000000000000000000000000000000000008)
+
+Backtrace (newest first):
+   0: backtrace::backtrace::libunwind::trace
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/libunwind.rs:117:9
+      backtrace::backtrace::trace_unsynchronized
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/mod.rs:66:14
+   1: backtrace::backtrace::trace
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/mod.rs:53:14
+   2: backtrace::capture::Backtrace::create
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/capture.rs:294:9
+   3: backtrace::capture::Backtrace::new_unresolved
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/capture.rs:289:9
+   4: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::maybe_get_debug_info::{{closure}}
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:293:37
+   5: soroban_env_host::budget::Budget::with_shadow_mode
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/budget.rs:972:21
+   6: soroban_env_host::host::Host::with_debug_mode
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:615:42
+   7: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::maybe_get_debug_info
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:290:18
+   8: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::error::{{closure}}
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:274:28
+   9: soroban_env_host::budget::Budget::with_shadow_mode
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/budget.rs:972:21
+  10: soroban_env_host::host::Host::with_debug_mode
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:615:42
+  11: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::error
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:261:14
+  12: <soroban_env_host::host::Host as soroban_env_common::env::EnvBase>::escalate_error_to_panic
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:767:31
+  13: soroban_sdk::env::internal::reject_err::{{closure}}
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:52:27
+  14: core::result::Result<T,E>::map_err
+             at /rustc/254b59607d4417e9dffbc307138ae5c86280fe4c/library/core/src/result.rs:968:27
+  15: soroban_sdk::env::internal::reject_err
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:52:11
+  16: <soroban_sdk::env::Env as soroban_env_common::env::Env>::call
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:1667:13
+  17: soroban_sdk::env::Env::invoke_contract
+             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:379:18
+  18: craft_nexus_contract::CraftNexusContractClient::create_escrow
+             at src/lib.rs:800:1
+  19: craft_nexus_contract::min_release_window_test::test_create_escrow_below_minimum_fails
+             at src/min_release_window_test.rs:110:12
+  20: craft_nexus_contract::min_release_window_test::test_create_escrow_below_minimum_fails::{{closure}}
+             at src/min_release_window_test.rs:106:44
+  21: core::ops::function::FnOnce::call_once
+             at /rustc/254b59607d4417e9dffbc307138ae5c86280fe4c/library/core/src/ops/function.rs:250:5
+
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Writing test snapshot file for test "min_release_window_test::test_create_escrow_below_minimum_fails" to "test_snapshots/min_release_window_test/test_create_escrow_below_minimum_fails.1.json".
+note: panic did not contain expected string
+      panic message: "HostError: Error(Contract, #23)\n\nEvent log (newest first):\n   0: [Diagnostic Event] topics:[error, Error(Contract, #23)], data:\"escalating error to panic\"\n   1: [Diagnostic Event] topics:[error, Error(Contract, #23)], data:[\"contract call failed\", create_escrow, [CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4, CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, 1000000, 1, 3600]]\n   2: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:\"caught error from function\"\n   3: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:\"escalating error to panic\"\n   4: [Failed Diagnostic Event (not emitted)] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[error, Error(Contract, #23)], data:[\"failing with contract error\", 23]\n   5: [Diagnostic Event] topics:[fn_call, Bytes(0000000000000000000000000000000000000000000000000000000000000001), create_escrow], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4, CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, 1000000, 1, 3600]\n   6: [Diagnostic Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[fn_return, initialize], data:Void\n   7: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, onboarding_contract], data:{field_name: onboarding_contract, new_value: [Address, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON], old_value: [String, \"unset\"]}\n   8: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, platform_wallet], data:{field_name: platform_wallet, new_value: [Address, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4], old_value: [String, \"unset\"]}\n   9: [Contract Event] contract:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM, topics:[config_updated, platform_fee_bps], data:{field_name: platform_fee_bps, new_value: [U32, 500], old_value: [String, \"unset\"]}\n   10: [Diagnostic Event] topics:[fn_call, Bytes(0000000000000000000000000000000000000000000000000000000000000001), initialize], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4, 500, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATYON]\n   11: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, mint], data:Void\n   12: [Contract Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[mint, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM, CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, \"aaa:GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE\"], data:10000000\n   13: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), mint], data:[CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM, 10000000]\n   14: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, set_admin], data:Void\n   15: [Contract Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[set_admin, GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE, \"aaa:GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQUDE\"], data:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM\n   16: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), set_admin], data:CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM\n   17: [Diagnostic Event] contract:CD3FXVGYSLQFFTW3UH6WFF2OKZH7VERGZJZAMJHTGHBWO4F6URWEJL23, topics:[fn_return, init_asset], data:Void\n   18: [Diagnostic Event] topics:[fn_call, Bytes(f65bd4d892e052cedba1fd62974e564ffa9226ca720624f331c36770bea46c44), init_asset], data:Bytes(0000000161616100000000000000000000000000000000000000000000000000000000000000000000000008)\n\nBacktrace (newest first):\n   0: backtrace::backtrace::libunwind::trace\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/libunwind.rs:117:9\n      backtrace::backtrace::trace_unsynchronized\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/mod.rs:66:14\n   1: backtrace::backtrace::trace\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/backtrace/mod.rs:53:14\n   2: backtrace::capture::Backtrace::create\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/capture.rs:294:9\n   3: backtrace::capture::Backtrace::new_unresolved\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/backtrace-0.3.76/src/capture.rs:289:9\n   4: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::maybe_get_debug_info::{{closure}}\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:293:37\n   5: soroban_env_host::budget::Budget::with_shadow_mode\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/budget.rs:972:21\n   6: soroban_env_host::host::Host::with_debug_mode\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:615:42\n   7: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::maybe_get_debug_info\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:290:18\n   8: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::error::{{closure}}\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:274:28\n   9: soroban_env_host::budget::Budget::with_shadow_mode\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/budget.rs:972:21\n  10: soroban_env_host::host::Host::with_debug_mode\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:615:42\n  11: soroban_env_host::host::error::<impl soroban_env_host::host::Host>::error\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host/error.rs:261:14\n  12: <soroban_env_host::host::Host as soroban_env_common::env::EnvBase>::escalate_error_to_panic\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-env-host-21.2.1/src/host.rs:767:31\n  13: soroban_sdk::env::internal::reject_err::{{closure}}\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:52:27\n  14: core::result::Result<T,E>::map_err\n             at /rustc/254b59607d4417e9dffbc307138ae5c86280fe4c/library/core/src/result.rs:968:27\n  15: soroban_sdk::env::internal::reject_err\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:52:11\n  16: <soroban_sdk::env::Env as soroban_env_common::env::Env>::call\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:1667:13\n  17: soroban_sdk::env::Env::invoke_contract\n             at /Users/backenddevopsdeveloper/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-sdk-21.7.7/src/env.rs:379:18\n  18: craft_nexus_contract::CraftNexusContractClient::create_escrow\n             at src/lib.rs:800:1\n  19: craft_nexus_contract::min_release_window_test::test_create_escrow_below_minimum_fails\n             at src/min_release_window_test.rs:110:12\n  20: craft_nexus_contract::min_release_window_test::test_create_escrow_below_minimum_fails::{{closure}}\n             at src/min_release_window_test.rs:106:44\n  21: core::ops::function::FnOnce::call_once\n             at /rustc/254b59607d4417e9dffbc307138ae5c86280fe4c/library/core/src/ops/function.rs:250:5\n\n"
+ expected substring: "ReleaseWindowTooShort"
+
+failures:
+    min_release_window_test::test_create_escrow_below_minimum_fails
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 254 filtered out; finished in 0.39s
+
+error: test failed, to rerun pass `--lib`

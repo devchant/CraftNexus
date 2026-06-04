@@ -69,6 +69,14 @@
                   "map": [
                     {
                       "key": {
+                        "symbol": "auto_verify_enabled"
+                      },
+                      "val": {
+                        "bool": true
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "escrow_contract"
                       },
                       "val": "void"
@@ -436,6 +444,14 @@
               "map": [
                 {
                   "key": {
+                    "symbol": "auto_verify_enabled"
+                  },
+                  "val": {
+                    "bool": true
+                  }
+                },
+                {
+                  "key": {
                     "symbol": "escrow_contract"
                   },
                   "val": "void"
@@ -539,6 +555,14 @@
             ],
             "data": {
               "map": [
+                {
+                  "key": {
+                    "symbol": "auto_verify_enabled"
+                  },
+                  "val": {
+                    "bool": true
+                  }
+                },
                 {
                   "key": {
                     "symbol": "escrow_contract"

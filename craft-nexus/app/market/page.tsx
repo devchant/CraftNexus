@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import Sidebar from "@/components/market/Sidebar";
-import CourseCard from "@/components/market/CourseCard";
+import Sidebar from "@/components/features/market/Sidebar";
+import CourseCard from "@/components/features/market/CourseCard";
 
 interface Course {
   title: string;
