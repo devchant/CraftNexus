@@ -184,13 +184,56 @@ struct LegacyUserProfile {
 /// [`OnboardingContract::get_user_metrics`], [`OnboardingContract::auto_verify_user`],
 /// and the internal `try_auto_verify` helper. Volume is normalized to 7 decimal
 /// places before accumulation so threshold comparisons remain token-agnostic.
+///
+/// # Integration notes — issue #427 / component #26
+///
+/// ## Storage layout
+/// Stored persistently under [`DataKey::UserMetrics`]`(Address)`. The struct
+/// is intentionally flat — two scalar fields only — to minimise on-chain
+/// entry size and reduce rent overhead. Avoid adding `Vec` or `Map` fields
+/// here; derived counters belong in separate indexed keys.
+///
+/// ## TTL management
+/// [`OnboardingContract::get_user_metrics`] extends the TTL of this entry
+/// on every read (via `extend_persistent`) so the record stays live as long
+/// as the user's escrow activity is ongoing. Writers (`update_user_metrics`)
+/// also extend TTL immediately after the write. The combined read + write
+/// refresh ensures the entry survives even during long periods with no new
+/// escrow settlements.
+///
+/// ## Preconditions for writers
+/// - Caller must be the [`OnboardingConfig::escrow_contract`] address, or
+///   `platform_admin` when no escrow contract is configured.
+/// - `volume_delta` must be normalised to 7-decimal stroops before
+///   accumulation; raw token amounts in non-standard decimals will produce
+///   incorrect threshold comparisons.
+///
+/// ## Storage side-effects
+/// - `DataKey::UserMetrics(address)` — read, incremented, written, TTL extended.
+/// - `DataKey::Config` — read to check auto-verify thresholds.
+/// - May transitively write `DataKey::UserProfile(address)` and append
+///   compact verification history entries when auto-verification triggers.
+///
+/// ## Off-chain consumers
+/// Indexers should subscribe to `UserVerified` events (see [`OnboardingContract::auto_verify_user`])
+/// rather than polling this struct to detect when a user crosses the
+/// verification threshold. The `total_volume` field is in 7-decimal
+/// stroop precision and must be divided by `10^7` before display.
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
 pub struct UserMetrics {
     /// Total number of completed seller-side escrows recorded by the escrow contract.
+    ///
+    /// Incremented by [`OnboardingContract::update_user_metrics`] on each
+    /// seller-side escrow settlement. Never decremented. Compared against
+    /// [`OnboardingConfig::min_escrow_count_for_verify`] during auto-verify.
     pub total_escrow_count: u32,
     /// Cumulative seller volume in stroops at 7-decimal precision (not raw token units).
+    ///
+    /// Accumulated by normalising each settlement amount to 7 decimal places
+    /// before addition, ensuring token-agnostic threshold comparisons. Compared
+    /// against [`OnboardingConfig::min_volume_for_verify`] during auto-verify.
     pub total_volume: i128,
 }
 
@@ -215,6 +258,50 @@ pub struct UserOnboardedEvent {
 /// Returned by [`OnboardingContract::get_verification_history`]. On-chain storage
 /// uses compact [`VerificationActionCode`] values; this struct exposes human-readable
 /// `action` strings for off-chain indexers and client UIs.
+///
+/// # Integration notes — issue #425 / component #24
+///
+/// ## Purpose
+/// Each `VerificationEntry` is a record of a discrete verification lifecycle
+/// event for a user: a request, an approval, a rejection, an automatic
+/// threshold-based verification, or a revocation triggered by a username
+/// change. Together these entries form the user's complete verification audit
+/// trail, enabling off-chain indexers and admin dashboards to reconstruct the
+/// full history.
+///
+/// ## Preconditions
+/// - Entries are appended only by functions in [`OnboardingContract`] that
+///   mutate verification state (`request_verification`, `approve_verification`,
+///   `reject_verification`, `auto_verify_user`, `change_username`).
+/// - No external contract or account may write entries directly.
+///
+/// ## Storage side-effects
+/// Entries are stored under two key patterns:
+/// - `DataKey::VerificationHistoryCount(Address)` — count of entries (u32)
+/// - `DataKey::VerificationHistoryIndexed(Address, u32)` — per-entry compact
+///   record ([`CompactVerificationEntry`]); the `action` field is stored as
+///   [`VerificationActionCode`] to minimise on-chain size.
+///
+/// Both keys have their TTL extended on every write and on reads that touch
+/// the history. The legacy `DataKey::VerificationHistory(Address)` Vec-based
+/// key is migrated lazily on first read and should not be written by new code.
+///
+/// ## Emitted events
+/// The functions that append history entries also emit named events on the
+/// contract's event stream. Indexers should prefer events over polling:
+/// - `request_verification` → `VerificationRequested`
+/// - `approve_verification` → `UserVerified`
+/// - `reject_verification`  → `VerificationRejected`
+/// - `auto_verify_user`     → `UserVerified`
+/// - `change_username`      → `UsernameChanged` (if verification is revoked)
+///
+/// ## Off-chain consumers
+/// The `action` field is a human-readable [`Symbol`] — one of:
+/// `"requested"`, `"approved"`, `"rejected"`, `"auto_verified"`,
+/// `"username_changed_revoked"`.
+/// Indexers may store this verbatim; no further decoding is required.
+/// The `by` field carries the actor's address for admin-initiated actions
+/// and is `None` for auto-verification events, which have no single actor.
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
@@ -229,6 +316,34 @@ pub struct VerificationEntry {
 }
 
 /// Compact action code for indexed verification history storage (#519).
+///
+/// # Integration notes — issue #429 / component #28
+///
+/// ## Purpose
+/// [`VerificationActionCode`] is the on-chain wire representation of a
+/// verification lifecycle action, encoded as a `u32` discriminant. Using
+/// a compact code rather than a full [`Symbol`] string reduces the size of
+/// each [`CompactVerificationEntry`] ledger entry, lowering rent costs at
+/// scale when users accumulate many history records.
+///
+/// ## Preconditions
+/// - Only values defined in this enum are written to storage. Any unknown
+///   discriminant encountered during a future upgrade indicates a schema
+///   mismatch and should be treated as an error by migration tooling.
+///
+/// ## Storage side-effects
+/// - Stored as the `action` field inside
+///   [`DataKey::VerificationHistoryIndexed`]`(Address, u32)` entries.
+/// - Discriminant values are **stable** — adding new variants is safe;
+///   reordering or removing variants is a breaking schema change.
+///
+/// ## Off-chain consumers
+/// Decode the discriminant using the mapping below:
+/// - `0` → `"requested"` (user submitted a manual review request)
+/// - `1` → `"approved"`  (admin approved the verification request)
+/// - `2` → `"rejected"`  (admin rejected the verification request)
+/// - `3` → `"auto_verified"` (activity thresholds triggered auto-verification)
+/// - `4` → `"username_changed_revoked"` (username change revoked verification)
 #[contracttype]
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[repr(u32)]
@@ -241,6 +356,29 @@ enum VerificationActionCode {
 }
 
 /// Lightweight on-chain verification history entry (#519).
+///
+/// # Integration notes — issue #429 / component #28 (continued)
+///
+/// ## Purpose
+/// `CompactVerificationEntry` is the actual bytes persisted under
+/// [`DataKey::VerificationHistoryIndexed`]`(Address, u32)`. It mirrors
+/// [`VerificationEntry`] but stores `action` as a [`VerificationActionCode`]
+/// discriminant rather than a heap-allocated [`Symbol`], keeping each
+/// storage entry small and rent-efficient.
+///
+/// ## Storage side-effects
+/// - Key: `DataKey::VerificationHistoryIndexed(user_address, index_u32)`
+/// - TTL is extended immediately after every write and on reads within
+///   `get_verification_history`.
+/// - The corresponding count is maintained under
+///   `DataKey::VerificationHistoryCount(user_address)`.
+///
+/// ## Off-chain consumers
+/// Indexers receive the decoded [`VerificationEntry`] form (with
+/// human-readable `action` symbols) from
+/// [`OnboardingContract::get_verification_history`] — this struct is
+/// internal and does not appear in any public ABI. Clients should never
+/// need to decode `CompactVerificationEntry` directly.
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 struct CompactVerificationEntry {
@@ -249,7 +387,48 @@ struct CompactVerificationEntry {
     by: Option<Address>,
 }
 
-/// Contract configuration
+/// Contract configuration for the onboarding module.
+///
+/// # Integration notes — issue #437 / component #36
+///
+/// ## Purpose
+/// `OnboardingConfig` is the single on-chain configuration record for the
+/// [`OnboardingContract`]. It is stored as a singleton under
+/// [`DataKey::Config`] and read by nearly every public function. Admins
+/// manage it through dedicated setter functions; it should never be written
+/// directly by external contracts.
+///
+/// ## Preconditions
+/// - Only the `platform_admin` address may call functions that mutate this
+///   config (e.g. `set_config`, `set_auto_verify_config`,
+///   `set_escrow_contract`). Each mutating function calls
+///   `platform_admin.require_auth()` before any storage write.
+/// - `min_username_length` must be ≤ `max_username_length`.
+/// - `min_escrow_count_for_verify` and `min_volume_for_verify` are advisory
+///   thresholds; setting both to `0` effectively disables the count/volume
+///   gates while `auto_verify_enabled` remains the master switch.
+///
+/// ## Storage side-effects
+/// - Stored persistently under `DataKey::Config` (singleton).
+/// - TTL is extended on every read and write via `extend_persistent`.
+/// - Any function that reads `Config` and finds the entry absent will panic
+///   with [`Error::NotInitialized`]; callers should ensure `initialize` has
+///   been called before any other contract function.
+///
+/// ## Emitted events
+/// Configuration mutations emit a `ConfigUpdated` event per changed field so
+/// indexers can track admin actions without scanning storage. No event is
+/// emitted during `initialize`.
+///
+/// ## Off-chain consumers
+/// - Read the singleton via `get_config` (if exposed) or listen to
+///   `ConfigUpdated` events to maintain a local mirror.
+/// - Cache `require_username`, `min_username_length`, and
+///   `max_username_length` client-side to validate usernames before
+///   submitting `onboard_user` or `change_username` transactions.
+/// - `escrow_contract` identifies the only address authorized to call
+///   `update_user_metrics` and `update_reputation`; indexers can use this
+///   to validate event sources.
 #[contracttype]
 #[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(any(test, feature = "testutils"), derive(Debug))]
