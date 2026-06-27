@@ -2460,12 +2460,13 @@ impl CraftNexusContract {
 
         config.admin = recovered_admin.clone();
         config.pending_admin = None;
+        // Write config to instance storage (primary location) — TTL already extended
+        // by get_platform_config_internal. No redundant extend_persistent needed.
+        env.storage().instance().set(&DataKey::PlatformConfig, &config);
 
+        // Sync to persistent backup key for recovery consistency (no TTL extension needed
+        // since this is a one-time sync, not a read-heavy path).
         env.storage().persistent().set(&PLATFORM_FEE, &config);
-        Self::extend_persistent(&env, &PLATFORM_FEE);
-
-        env.storage().persistent().set(&ADMIN, &config.admin);
-        Self::extend_persistent(&env, &ADMIN);
 
         // Clear the recovery time lock for next cycle
         env.storage().persistent().remove(&recovery_time_key);
