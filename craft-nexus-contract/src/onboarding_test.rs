@@ -754,6 +754,60 @@ fn test_process_verification_request_preserves_other_pending_users() {
     assert_eq!(queue.get(0), Some(user_two));
 }
 
+/// [SECURITY] Endpoint #53 (issue #454): `process_verification_request` is the
+/// privileged verification state transition and must reject any caller that is
+/// not the platform admin. With no auth mocked, `require_auth()` aborts the
+/// invocation and the Soroban host rolls the transaction back before the target
+/// profile's `is_verified` flag is touched.
+#[test]
+#[should_panic]
+fn test_process_verification_request_unauthorized() {
+    let env = Env::default();
+
+    // Deliberately do NOT call env.mock_all_auths(); we want require_auth() to
+    // enforce real authorization so an unauthorized invocation rolls back.
+    let contract_id = env.register_contract(None, OnboardingContract);
+    let client = OnboardingContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let user = Address::generate(&env);
+
+    // Seed the config and a target profile directly as the contract so the
+    // endpoint is reachable without running `initialize` (which itself requires
+    // auth). This isolates the test to the endpoint's own authorization guard.
+    let config = OnboardingConfig {
+        require_username: true,
+        min_username_length: 3,
+        max_username_length: 50,
+        platform_admin: admin.clone(),
+        auto_verify_enabled: true,
+        min_escrow_count_for_verify: 5,
+        min_volume_for_verify: 10_000_000_000,
+        escrow_contract: None,
+    };
+
+    env.as_contract(&client.address, || {
+        env.storage().persistent().set(&DataKey::Config, &config);
+        let profile = UserProfile {
+            version: CURRENT_USER_PROFILE_VERSION,
+            address: user.clone(),
+            role: UserRole::Artisan,
+            username: soroban_sdk::Symbol::new(&env, "pending_user"),
+            registered_at: 0,
+            is_verified: false,
+            successful_trades: 0,
+            disputed_trades: 0,
+            portfolio_cid: None,
+            status: ProfileStatus::Active,
+        };
+        env.storage()
+            .persistent()
+            .set(&DataKey::UserProfile(user.clone()), &profile);
+    });
+
+    // No platform-admin signature is present, so require_auth() must panic and
+    // the verification state transition must never execute.
+    client.process_verification_request(&user, &true);
 // ============================================================
 // Issue #41 – admin_clear_verification_request authorization
 // ============================================================
