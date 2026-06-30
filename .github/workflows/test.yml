@@ -28,12 +28,11 @@ jobs:
 
       - name: Check snapshot files unchanged
         run: |
-          git add --dry-run craft-nexus-contract/test_snapshots/ 2>&1 | head -20
-          if git diff --name-only --exit-code craft-nexus-contract/test_snapshots/; then
+          if git diff --name-only --exit-code test_snapshots/; then
             echo "Snapshots are up to date."
           else
             echo "ERROR: Snapshot files have changed without being committed."
-            echo "If changes are intentional, update snapshots via:"
-            echo "  git add craft-nexus-contract/test_snapshots/"
+            echo "If changes are intentional, update them via:"
+            echo "  git add test_snapshots/"
             exit 1
           fi
