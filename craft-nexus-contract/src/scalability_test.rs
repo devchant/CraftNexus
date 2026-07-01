@@ -541,9 +541,20 @@ fn test_artisan_stake_queue_pruning() {
     // Add one more deposit - this should trigger pruning
     client.stake_tokens(&artisan, &token, &1000);
 
-    // Count should be less than the threshold + 1 due to pruning
+    // Count should collapse to the single new deposit because all earlier entries matured and were pruned.
     let count_after_pruning = client.get_artisan_stake_queue_count(&artisan);
-    assert!(count_after_pruning <= STAKE_QUEUE_PRUNE_THRESHOLD);
+    assert_eq!(count_after_pruning, 1);
+
+    let stored_deposit: Option<StakeDeposit> = env.as_contract(&client.address, || {
+        env.storage().persistent().get(&DataKey::ArtisanStakeQueueIndexed(artisan.clone(), 0))
+    });
+    let deposit = stored_deposit.expect("pruned queue should retain the latest deposit in storage");
+    assert_eq!(deposit.amount, 1000);
+
+    let missing_deposit: Option<StakeDeposit> = env.as_contract(&client.address, || {
+        env.storage().persistent().get(&DataKey::ArtisanStakeQueueIndexed(artisan.clone(), 1))
+    });
+    assert!(missing_deposit.is_none(), "only the latest deposit should remain after pruning");
 }
 
 #[test]
