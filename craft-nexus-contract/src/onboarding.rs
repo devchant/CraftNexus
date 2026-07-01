@@ -81,7 +81,7 @@
 //! out-of-date shape through the read API.
 
 
-
+use crate::alloc::string::ToString;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Map, String,
     Symbol, TryFromVal, Val, Vec,

@@ -1247,7 +1247,8 @@ fn test_change_username_with_special_characters() {
     assert_eq!(
         updated.username,
         Symbol::new(&env, "new_user_name_123")
-    );}
+    );
+}
 
 #[test]
 fn test_change_username_preserves_other_fields() {
