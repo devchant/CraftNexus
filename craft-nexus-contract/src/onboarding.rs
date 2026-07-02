@@ -80,9 +80,9 @@
 //! on first read (internal `try_get_user_profile`); integrators never observe an
 //! out-of-date shape through the read API.
 
+extern crate alloc;
 
-
-use crate::alloc::string::ToString;
+use alloc::string::ToString;
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, token, Address, Bytes, Env, Map, String,
     Symbol, TryFromVal, Val, Vec,
@@ -1425,6 +1425,11 @@ impl OnboardingContract {
             status: profile.status,
         }
     }
+    fn try_get_user_profile(env: &Env, user: Address) -> Option<UserProfile> {
+        let key = DataKey::UserProfile(user.clone());
+        let stored: Val = env.storage().persistent().get(&key)?;
+        let map = Map::<Symbol, Val>::try_from_val(env, &stored).expect("");
+        let version_key = Symbol::new(env, "version");
 
     fn read_portfolio_cid(env: &Env, user: &Address) -> Option<Bytes> {
         let key = DataKey::UserPortfolio(user.clone());
@@ -1445,6 +1450,25 @@ impl OnboardingContract {
             None => env.storage().persistent().remove(&key),
         }
     }
+
+            // ---> ADD THIS LINE TO FIX THE TTL BUG <---
+            Self::extend_persistent(env, &key);
+
+            return Some(profile);
+        }
+
+        let legacy =
+            LegacyUserProfile::try_from_val(env, &stored).expect("User profile storage corrupted");
+
+        // Migrate Option<String> to Option<Bytes>
+        let optimized_cid = legacy.portfolio_cid.map(|cid_str| {
+            let mut cid_bytes = Bytes::new(env);
+            let len = cid_str.len() as usize;
+            let mut buf = [0u8; 128]; // Max CID length
+            cid_str.copy_into_slice(&mut buf[..len]);
+            cid_bytes.extend_from_slice(&buf[..len]);
+            cid_bytes
+        });
 
     fn persist_stored_user_profile(env: &Env, user: &Address, profile: &StoredUserProfile) {
         let key = DataKey::UserProfile(user.clone());
@@ -3492,6 +3516,13 @@ impl OnboardingContract {
         address.require_auth();
         match Self::try_get_user_profile(&env, address) {
             Some(profile) => (profile.successful_trades, profile.disputed_trades),
+        let key = DataKey::UserProfile(address.clone());
+        match env.storage().persistent().get::<DataKey, UserProfile>(&key) {
+            Some(profile) => {
+                // Issue #423/#435: extend TTL on read to prevent storage expiry
+                Self::extend_persistent(&env, &key);
+                (profile.successful_trades, profile.disputed_trades)
+            }
             None => (0, 0),
         }
     }

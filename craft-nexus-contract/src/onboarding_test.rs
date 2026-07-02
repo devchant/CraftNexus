@@ -1,7 +1,10 @@
 use super::decimal_test_token::{DecimalTestToken, DecimalTestTokenClient};
-use super::*;
 use super::Error;
-use soroban_sdk::{testutils::{Address as _, Ledger as _}, token, Address, Bytes, Env, String};
+use super::*;
+use soroban_sdk::{
+    testutils::{Address as _, Ledger as _},
+    token, Address, Bytes, Env, String,
+};
 
 fn register_decimal_test_token(env: &Env, decimals: u32) -> Address {
     let admin = Address::generate(env);
@@ -1257,10 +1260,7 @@ fn test_change_username_with_special_characters() {
     let updated = client.change_username(&user, &new_username);
 
     // Should be normalized with underscores
-    assert_eq!(
-        updated.username,
-        Symbol::new(&env, "new_user_name_123")
-    );
+    assert_eq!(updated.username, Symbol::new(&env, "new_user_name_123"));
 }
 
 #[test]
@@ -1403,12 +1403,7 @@ fn test_volume_normalization_8_decimal_token() {
 
     let token = register_decimal_test_token(&env, 8);
     let raw_threshold = AUTO_VERIFY_VOLUME_THRESHOLD * 10;
-    client.update_user_metrics(
-        &user,
-        &AUTO_VERIFY_ESCROW_THRESHOLD,
-        &raw_threshold,
-        &token,
-    );
+    client.update_user_metrics(&user, &AUTO_VERIFY_ESCROW_THRESHOLD, &raw_threshold, &token);
 
     assert!(client.is_verified(&user));
     let metrics = client.get_user_metrics(&user);
@@ -1427,12 +1422,7 @@ fn test_volume_normalization_18_decimal_token() {
 
     let token = register_decimal_test_token(&env, 18);
     let raw_threshold = AUTO_VERIFY_VOLUME_THRESHOLD * 10_i128.pow(11);
-    client.update_user_metrics(
-        &user,
-        &AUTO_VERIFY_ESCROW_THRESHOLD,
-        &raw_threshold,
-        &token,
-    );
+    client.update_user_metrics(&user, &AUTO_VERIFY_ESCROW_THRESHOLD, &raw_threshold, &token);
 
     assert!(client.is_verified(&user));
     let metrics = client.get_user_metrics(&user);
@@ -2317,13 +2307,13 @@ fn test_get_user_reputation_authorized() {
     env.mock_all_auths();
     let (client, _) = setup_test(&env);
     let user = Address::generate(&env);
-    
+
     // Onboard user
     client.onboard_user(&user, &String::from_str(&env, "rep1"), &UserRole::Artisan);
 
     // Update reputation
     client.update_reputation(&user, &2u32, &1u32);
-    
+
     // Get reputation (authorized)
     let (successful, disputed) = client.get_user_reputation(&user);
     assert_eq!(successful, 2);

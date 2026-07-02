@@ -10,6 +10,8 @@ use soroban_sdk::{
 #[cfg(test)]
 mod enhanced_features_test;
 #[cfg(test)]
+mod event_snapshot_test;
+#[cfg(test)]
 mod expired_dispute_fee_test;
 #[cfg(test)]
 mod min_release_window_test;
@@ -19,8 +21,6 @@ mod reentrancy_test;
 mod scalability_test;
 #[cfg(test)]
 mod test;
-#[cfg(test)]
-mod event_snapshot_test;
 // Onboarding is a separate logical contract; only one `#[contract]` may be linked per WASM
 // artifact. Keep it in this crate for host tests (`cargo test`) but omit from guest builds.
 #[cfg(not(target_family = "wasm"))]
@@ -461,6 +461,9 @@ pub enum EscrowStatus {
     Refunded = 2,
     Disputed = 3,
     Resolved = 4,
+    ReleasePending = 5,
+    RefundPending = 6,
+    DisputePending = 7,
 }
 
 /// Choice of resolution for a disputed escrow.
@@ -3352,6 +3355,23 @@ impl CraftNexusContract {
         upgraded
     }
 
+    fn claim_active_escrow_transition(
+        env: &Env,
+        order_id: u32,
+        pending_status: EscrowStatus,
+    ) -> Result<Escrow, Error> {
+        let mut escrow = Self::get_stored_escrow(env, order_id);
+        if escrow.status != EscrowStatus::Active {
+            return Err(Error::InvalidEscrowState);
+        }
+
+        escrow.status = pending_status;
+        let key = (ESCROW, order_id);
+        env.storage().persistent().set(&key, &escrow);
+        Self::extend_persistent(env, &key);
+        Ok(escrow)
+    }
+
     fn upgrade_escrow(env: &Env, order_id: u32, mut escrow: Escrow) -> Escrow {
         if escrow.version < 3 {
             escrow.funded = true;
@@ -3661,19 +3681,14 @@ impl CraftNexusContract {
     /// * `order_id` - Order identifier
     pub fn release_funds(env: Env, order_id: u32) {
         let _guard = ReentryGuardScope::new(&env);
-        let escrow_opt = env.storage().persistent().get(&(ESCROW, order_id));
-        if escrow_opt.is_none() {
-            env.panic_with_error(crate::Error::EscrowNotFound);
-        }
-        Self::extend_persistent(&env, &(ESCROW, order_id));
-        let mut escrow: Escrow = escrow_opt.unwrap();
+        let escrow_for_auth = Self::get_stored_escrow(&env, order_id);
 
         // Only buyer can release funds
-        escrow.buyer.require_auth();
+        escrow_for_auth.buyer.require_auth();
 
-        if !(escrow.status == EscrowStatus::Active) {
-            env.panic_with_error(crate::Error::InvalidEscrowState);
-        }
+        let mut escrow =
+            Self::claim_active_escrow_transition(&env, order_id, EscrowStatus::ReleasePending)
+                .unwrap_or_else(|e| env.panic_with_error(e));
 
         // Get platform config
         let config = Self::get_platform_config_internal(&env);
@@ -3757,23 +3772,22 @@ impl CraftNexusContract {
     /// * `order_id` - Order identifier
     pub fn auto_release(env: Env, order_id: u32) {
         let _guard = ReentryGuardScope::new(&env);
-        let escrow_opt = env.storage().persistent().get(&(ESCROW, order_id));
-        if escrow_opt.is_none() {
-            env.panic_with_error(crate::Error::EscrowNotFound);
-        }
-        Self::extend_persistent(&env, &(ESCROW, order_id));
-        let mut escrow: Escrow = escrow_opt.unwrap();
+        let escrow_for_window = Self::get_stored_escrow(&env, order_id);
 
-        if !(escrow.status == EscrowStatus::Active) {
+        if !(escrow_for_window.status == EscrowStatus::Active) {
             env.panic_with_error(crate::Error::InvalidEscrowState);
         }
 
         let current_time = env.ledger().timestamp();
-        let elapsed = current_time - (escrow.created_at as u64);
+        let elapsed = current_time - (escrow_for_window.created_at as u64);
 
-        if elapsed < escrow.release_window as u64 {
+        if elapsed < escrow_for_window.release_window as u64 {
             env.panic_with_error(crate::Error::ReleaseWindowNotElapsed);
         }
+
+        let mut escrow =
+            Self::claim_active_escrow_transition(&env, order_id, EscrowStatus::ReleasePending)
+                .unwrap_or_else(|e| env.panic_with_error(e));
 
         // Get platform config
         let config = Self::get_platform_config_internal(&env);
@@ -3893,7 +3907,6 @@ impl CraftNexusContract {
                 timestamp: env.ledger().timestamp(),
             },
         );
-
     }
 
     /// Reject obviously invalid WASM hashes before they touch storage.
@@ -4253,15 +4266,8 @@ impl CraftNexusContract {
         admin.require_auth();
 
         let order_id = escrow_id as u32;
-        let escrow_opt = env.storage().persistent().get(&(ESCROW, order_id));
-        if escrow_opt.is_none() {
-            return Err(Error::EscrowNotFound);
-        }
-        let mut escrow: Escrow = escrow_opt.unwrap();
-
-        if escrow.status != EscrowStatus::Active {
-            return Err(Error::InvalidEscrowState);
-        }
+        let mut escrow =
+            Self::claim_active_escrow_transition(&env, order_id, EscrowStatus::RefundPending)?;
 
         // Update status
         escrow.status = EscrowStatus::Refunded;
@@ -4488,16 +4494,18 @@ impl CraftNexusContract {
     ) {
         authorized_address.require_auth();
 
-        let mut escrow = Self::get_stored_escrow(&env, order_id);
+        let escrow_for_auth = Self::get_stored_escrow(&env, order_id);
 
         // Allow buyer or seller to dispute
-        if !(escrow.buyer == authorized_address || escrow.seller == authorized_address) {
+        if !(escrow_for_auth.buyer == authorized_address
+            || escrow_for_auth.seller == authorized_address)
+        {
             env.panic_with_error(crate::Error::Unauthorized);
         }
 
-        if !(escrow.status == EscrowStatus::Active) {
-            env.panic_with_error(crate::Error::InvalidEscrowState);
-        }
+        let mut escrow =
+            Self::claim_active_escrow_transition(&env, order_id, EscrowStatus::DisputePending)
+                .unwrap_or_else(|e| env.panic_with_error(e));
 
         escrow.status = EscrowStatus::Disputed;
         escrow.dispute_reason = Some(dispute_reason); // Assign Symbol
@@ -6238,7 +6246,9 @@ impl CraftNexusContract {
         if id > MAX_RECURRING_ESCROW_ID {
             return Err(crate::Error::RecurringEscrowIdExhausted);
         }
-        let next_id = id.checked_add(1).ok_or(crate::Error::RecurringEscrowIdExhausted)?;
+        let next_id = id
+            .checked_add(1)
+            .ok_or(crate::Error::RecurringEscrowIdExhausted)?;
         env.storage()
             .persistent()
             .set(&DataKey::NextRecurringEscrowId, &next_id);
@@ -6404,7 +6414,6 @@ impl CraftNexusContract {
                 },
             );
         }
-
     }
 
     /// Cancel a recurring escrow and refund remaining funds to the buyer.
@@ -6456,7 +6465,6 @@ impl CraftNexusContract {
                 timestamp: env.ledger().timestamp(),
             },
         );
-
     }
 
     /// Get details of a recurring escrow.
@@ -6510,5 +6518,4 @@ impl CraftNexusContract {
     fn exit_reentry_guard(env: &Env) {
         env.storage().temporary().remove(&DataKey::ReentryGuard);
     }
-
 }
