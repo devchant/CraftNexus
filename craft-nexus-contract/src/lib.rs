@@ -2003,6 +2003,14 @@ impl CraftNexusContract {
 
         let previous = Self::get_onboarding_address(&env);
 
+        // Issue #527 — short-circuit on the no-op call before paying
+        // for the persistent storage write and TTL extension.
+        if let Some(ref current) = previous {
+            if *current == contract_address {
+                return;
+            }
+        }
+
         env.storage()
             .persistent()
             .set(&DataKey::OnboardingContractAddress, &contract_address);
@@ -3197,7 +3205,6 @@ impl CraftNexusContract {
     }
 
     fn get_platform_config_internal(env: &Env) -> PlatformConfig {
-        Self::extend_persistent_read(env, &DataKey::PlatformConfig);
         env.storage()
             .instance()
             .extend_ttl(TTL_THRESHOLD, TTL_EXTENSION);
@@ -4906,6 +4913,7 @@ impl CraftNexusContract {
             dispute_reason: None,
             dispute_initiated_at: None,
             funded: true,
+            funding_deadline: None, // Immediately funded; no deadline required (#656)
         };
 
         env.storage()
