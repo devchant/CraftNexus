@@ -409,7 +409,7 @@ fn test_resolve_dispute_by_moderator() {
 fn test_recover_admin_with_zero_window_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let (client, _buyer, _seller, _token_id, _token_admin, _platform_wallet, _admin) =
+    let (client, _buyer, _seller, _token_id, _token_admin, _platform_wallet, admin) =
         setup_test(&env, true);
 
     // Simulate a malicious/deployer-provided zero-second recovery window by
@@ -417,12 +417,17 @@ fn test_recover_admin_with_zero_window_fails() {
     // recording a zero delay. The contract should reject recovery attempts
     // that don't meet the minimum cooldown.
     let current_time = env.ledger().timestamp();
-    env.storage()
-        .persistent()
-        .set(&DataKey::AdminRecoveryTime, &current_time);
-    env.storage()
-        .persistent()
-        .set(&DataKey::AdminRecoveryDelay, &0u64);
+    env.as_contract(&client.address, || {
+        env.storage()
+            .persistent()
+            .set(&DataKey::FallbackAdmin, &admin);
+        env.storage()
+            .persistent()
+            .set(&DataKey::AdminRecoveryTime, &current_time);
+        env.storage()
+            .persistent()
+            .set(&DataKey::AdminRecoveryDelay, &0u64);
+    });
 
     let recovered_admin = Address::generate(&env);
     let res = client.try_recover_admin_access(&recovered_admin);
