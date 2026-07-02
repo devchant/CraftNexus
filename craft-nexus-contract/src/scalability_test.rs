@@ -3,7 +3,7 @@
 use super::*;
 use soroban_sdk::{
     testutils::Address as _,
-    token, Address, Env,
+    token, Address, Env, Map,
 };
 use soroban_sdk::testutils::Ledger;
 
@@ -481,6 +481,80 @@ fn test_whitelisted_tokens_migration() {
         env.storage().persistent().has(&legacy_key)
     });
     assert!(!has_legacy);
+}
+
+#[test]
+fn test_whitelist_migration_50_tokens() {
+    let (env, client, _, _, _, _admin, _, _) = setup_test();
+
+    let num_tokens = 55;
+    let mut tokens = soroban_sdk::Vec::new(&env);
+
+    let legacy_key = DataKey::WhitelistedTokens;
+    let mut legacy_map = Map::new(&env);
+    for i in 0..num_tokens {
+        let token = Address::generate(&env);
+        tokens.push_back(token.clone());
+        legacy_map.set(token, true);
+    }
+    let false_token = Address::generate(&env);
+    legacy_map.set(false_token, false);
+
+    env.as_contract(&client.address, || {
+        env.storage()
+            .persistent()
+            .set(&legacy_key, &legacy_map);
+    });
+
+    let migrated_count = client.migrate_whitelist_storage();
+    assert_eq!(migrated_count, num_tokens);
+
+    let count = client.get_whitelisted_token_count();
+    assert_eq!(count, num_tokens);
+
+    for i in 0..tokens.len() {
+        if let Some(token) = tokens.get(i) {
+            assert!(client.is_token_whitelisted(&token), "token {} not whitelisted", i);
+        }
+    }
+    assert!(!client.is_token_whitelisted(&false_token));
+
+    let has_legacy = env.as_contract(&client.address, || {
+        env.storage().persistent().has(&legacy_key)
+    });
+    assert!(!has_legacy);
+}
+
+#[test]
+fn test_whitelist_scalability_beyond_1800() {
+    let (env, client, _, _, _, _admin, _, _) = setup_test();
+
+    let num_tokens = 2001;
+    let mut tokens = soroban_sdk::Vec::new(&env);
+
+    let legacy_key = DataKey::WhitelistedTokens;
+    let mut legacy_map = Map::new(&env);
+    for i in 0..num_tokens {
+        let token = Address::generate(&env);
+        tokens.push_back(token.clone());
+        legacy_map.set(token, true);
+    }
+
+    env.as_contract(&client.address, || {
+        env.storage()
+            .persistent()
+            .set(&legacy_key, &legacy_map);
+    });
+
+    let migrated_count = client.migrate_whitelist_storage();
+    assert_eq!(migrated_count, num_tokens);
+
+    let count = client.get_whitelisted_token_count();
+    assert_eq!(count, num_tokens);
+
+    assert!(client.is_token_whitelisted(&tokens.get_unchecked(0)));
+    assert!(client.is_token_whitelisted(&tokens.get_unchecked(num_tokens / 2)));
+    assert!(client.is_token_whitelisted(&tokens.get_unchecked(num_tokens - 1)));
 }
 
 #[test]
