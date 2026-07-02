@@ -810,7 +810,6 @@ fn test_process_verification_request_unauthorized() {
     // the verification state transition must never execute.
     client.process_verification_request(&user, &true);
 }
-
 // ============================================================
 // Issue #41 – admin_clear_verification_request authorization
 // ============================================================

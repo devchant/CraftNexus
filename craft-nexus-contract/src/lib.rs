@@ -495,6 +495,10 @@ pub struct Escrow {
     pub dispute_reason: Option<Symbol>,
     pub dispute_initiated_at: Option<u64>,
     pub funded: bool,
+    /// Ledger timestamp after which any party (or admin) may cancel this escrow
+    /// if it has not yet been funded. Set to created_at + UNFUNDED_CANCEL_TIMEOUT
+    /// for unfunded escrows; None for escrows that were funded at creation (#656).
+    pub funding_deadline: Option<u64>,
 }
 
 #[contracttype]
@@ -2702,6 +2706,7 @@ impl CraftNexusContract {
             dispute_reason: None,
             dispute_initiated_at: None,
             funded: true,
+            funding_deadline: None, // Immediately funded; no deadline required (#656)
         };
 
         env.storage().persistent().set(&(ESCROW, order_id), &escrow);
@@ -2811,6 +2816,9 @@ impl CraftNexusContract {
         Self::validate_optional_ipfs_hash(&env, &ipfs_hash);
         Self::validate_optional_metadata_hash(&env, &metadata_hash);
 
+        // Compute the deadline after which any party may cancel the unfunded stub (#656).
+        let funding_deadline = created_at_u64 + UNFUNDED_CANCEL_TIMEOUT;
+
         let escrow = Escrow {
             version: CURRENT_ESCROW_VERSION,
             id: order_id as u64,
@@ -2827,6 +2835,7 @@ impl CraftNexusContract {
             dispute_reason: None,
             dispute_initiated_at: None,
             funded: false,
+            funding_deadline: Some(funding_deadline), // Deadline for funding; parties may cancel after this (#656)
         };
 
         env.storage().persistent().set(&(ESCROW, order_id), &escrow);
@@ -2927,17 +2936,40 @@ impl CraftNexusContract {
         Ok(())
     }
 
-    /// Cancel an escrow that has not been funded within the timeout period (#213).
-    pub fn cancel_unfunded_escrow(env: Env, order_id: u32) -> Result<(), Error> {
-        let _guard = ReentryGuardScope::new(&env);
+    /// Cancel an escrow that has not been funded within the timeout period (#213, #656).
+    ///
+    /// Before the `funding_deadline` only the buyer may cancel voluntarily.
+    /// After the deadline **any** party (buyer, seller, or platform admin) may cancel
+    /// by passing their own address as `caller` to reclaim persistent-storage rent
+    /// and prevent indefinite stub accumulation.
+    pub fn cancel_unfunded_escrow(env: Env, order_id: u32, caller: Address) -> Result<(), Error> {
+        Self::enter_reentry_guard(&env);
         let escrow = Self::get_stored_escrow(&env, order_id);
         if escrow.funded {
             return Err(Error::InvalidEscrowState);
         }
 
         let current_time = env.ledger().timestamp();
-        if (escrow.created_at as u64) + UNFUNDED_CANCEL_TIMEOUT > current_time {
-            return Err(Error::ReleaseWindowNotElapsed);
+        // Use the stored funding_deadline when available; fall back to the
+        // legacy created_at + UNFUNDED_CANCEL_TIMEOUT calculation for escrows
+        // created before this field was added.
+        let deadline = escrow
+            .funding_deadline
+            .unwrap_or((escrow.created_at as u64) + UNFUNDED_CANCEL_TIMEOUT);
+
+        if current_time >= deadline {
+            // After the deadline: buyer, seller, or platform admin may cancel.
+            let admin = Self::get_admin(&env).unwrap_or(escrow.buyer.clone());
+            if caller != escrow.buyer && caller != escrow.seller && caller != admin {
+                return Err(Error::Unauthorized);
+            }
+            caller.require_auth();
+        } else {
+            // Before the deadline: only the buyer may cancel voluntarily.
+            if caller != escrow.buyer {
+                return Err(Error::Unauthorized);
+            }
+            caller.require_auth();
         }
 
         // Cleanup state
@@ -2951,6 +2983,74 @@ impl CraftNexusContract {
         Self::safe_update_active_contracts(&env, escrow.seller.clone(), -1);
 
         Ok(())
+    }
+
+    /// Batch-cancel unfunded escrow stubs whose `funding_deadline` has elapsed (#656).
+    ///
+    /// Callable only by the platform admin. The function iterates over the
+    /// provided list of `order_ids` and cancels each one that:
+    ///   1. Exists in storage
+    ///   2. Is not yet funded
+    ///   3. Has passed its `funding_deadline` (or the legacy 24-hour timeout)
+    ///
+    /// Escrows that do not meet these criteria are silently skipped so a
+    /// single invalid entry does not abort the whole batch. Returns the count
+    /// of escrows that were actually cancelled.
+    ///
+    /// # Arguments
+    /// * `admin` – Must be the platform admin address; auth is required.
+    /// * `order_ids` – List of escrow order IDs to check and cancel.
+    pub fn auto_cancel_unfunded(
+        env: Env,
+        admin: Address,
+        order_ids: soroban_sdk::Vec<u32>,
+    ) -> Result<u32, Error> {
+        Self::enter_reentry_guard(&env);
+
+        // Verify caller is platform admin
+        let stored_admin = Self::get_admin(&env)?;
+        if admin != stored_admin {
+            return Err(Error::Unauthorized);
+        }
+        admin.require_auth();
+
+        let current_time = env.ledger().timestamp();
+        let mut cancelled_count: u32 = 0;
+
+        for order_id in order_ids.iter() {
+            let key = (ESCROW, order_id);
+
+            // Skip missing escrows
+            let escrow: Escrow = match env.storage().persistent().get(&key) {
+                Some(e) => e,
+                None => continue,
+            };
+
+            // Skip already-funded escrows
+            if escrow.funded {
+                continue;
+            }
+
+            // Skip escrows that haven't yet reached their funding deadline
+            let deadline = escrow
+                .funding_deadline
+                .unwrap_or((escrow.created_at as u64) + UNFUNDED_CANCEL_TIMEOUT);
+            if current_time < deadline {
+                continue;
+            }
+
+            // Cancel: remove from storage and update bookkeeping
+            env.storage().persistent().remove(&key);
+            Self::update_active_obligations(&env, &escrow.buyer, -1);
+            Self::update_active_obligations(&env, &escrow.seller, -1);
+            Self::safe_update_active_contracts(&env, escrow.buyer.clone(), -1);
+            Self::safe_update_active_contracts(&env, escrow.seller.clone(), -1);
+
+            cancelled_count += 1;
+        }
+
+        Self::exit_reentry_guard(&env);
+        Ok(cancelled_count)
     }
 
     /// Get escrows for a specific buyer with pagination.
@@ -3172,6 +3272,7 @@ impl CraftNexusContract {
             dispute_reason: dispute_symbol,
             dispute_initiated_at: legacy.dispute_initiated_at,
             funded: true,
+            funding_deadline: None, // Legacy escrows were funded at creation
         };
         Self::extend_persistent(env, &key); // OPTIMIZED: Ensure TTL extension on read
         upgraded
@@ -3228,6 +3329,7 @@ impl CraftNexusContract {
             dispute_reason: dispute_symbol,
             dispute_initiated_at: legacy.dispute_initiated_at,
             funded: true,
+            funding_deadline: None, // Legacy escrows were funded at creation
         };
         env.storage().persistent().set(&key, &upgraded);
         Self::extend_persistent(env, &key);
@@ -3271,6 +3373,7 @@ impl CraftNexusContract {
             dispute_reason: dispute_symbol, // Map to lightweight Symbol
             dispute_initiated_at: escrow.dispute_initiated_at,
             funded: true,
+            funding_deadline: None, // Legacy escrows were funded at creation
         }
     }
 
@@ -4810,6 +4913,7 @@ impl CraftNexusContract {
             dispute_reason: None,
             dispute_initiated_at: None,
             funded: true,
+            funding_deadline: None, // Immediately funded; no deadline required (#656)
         };
 
         env.storage()
