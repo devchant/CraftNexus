@@ -6168,7 +6168,7 @@ impl CraftNexusContract {
         total_amount: i128,
         frequency: u64,
         duration: u32,
-    ) -> RecurringEscrow {
+    ) -> Result<RecurringEscrow, Error> {
         let _guard = ReentryGuardScope::new(&env);
         Self::check_not_paused(&env);
         buyer.require_auth();
@@ -6191,11 +6191,9 @@ impl CraftNexusContract {
             .get(&DataKey::NextRecurringEscrowId)
             .unwrap_or(1);
         if id > MAX_RECURRING_ESCROW_ID {
-            env.panic_with_error(crate::Error::RecurringEscrowIdExhausted);
+            return Err(crate::Error::RecurringEscrowIdExhausted);
         }
-        let next_id = id
-            .checked_add(1)
-            .unwrap_or_else(|| env.panic_with_error(crate::Error::RecurringEscrowIdExhausted));
+        let next_id = id.checked_add(1).ok_or(crate::Error::RecurringEscrowIdExhausted)?;
         env.storage()
             .persistent()
             .set(&DataKey::NextRecurringEscrowId, &next_id);
@@ -6248,7 +6246,7 @@ impl CraftNexusContract {
             },
         );
 
-        escrow
+        Ok(escrow)
     }
 
     /// Release funds for the next cycle in a recurring escrow.
