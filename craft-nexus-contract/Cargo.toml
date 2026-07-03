@@ -1,6 +1,6 @@
 [package]
 name = "craft-nexus-contract"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [lib]
@@ -12,6 +12,7 @@ testutils = ["soroban-sdk/testutils"]
 
 [dependencies]
 soroban-sdk = { version = "21.0.0" }
+wee_alloc = "0.4.5"
 
 [dev-dependencies]
 soroban-sdk = { version = "21.0.0", features = ["testutils"] }

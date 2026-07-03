@@ -84,7 +84,7 @@ fn test_recurring_escrow_lifecycle() {
 
     // 1. Create Recurring Escrow (2 cycles, frequency 3600)
     let rec_escrow =
-        escrow.create_recurring_escrow(&buyer, &artisan, &token_id, &total_amount, 3600, 2).unwrap();
+        escrow.create_recurring_escrow(&buyer, &artisan, &token_id, &total_amount, &3600, &2);
     assert_eq!(rec_escrow.total_amount, total_amount);
     assert!(rec_escrow.is_active);
     assert!(escrow.has_active_escrows(&buyer));
@@ -228,4 +228,21 @@ fn test_reactivate_profile_username_taken_fails() {
 
     // Now reactivation must fail — username is taken
     onboarding.reactivate_profile(&buyer);
+}
+
+#[test]
+#[should_panic]
+fn test_reactivate_profile_after_username_claimed_by_another() {
+    let env = Env::default();
+    let (_, onboarding, user_a, _, _, _, _, _) = setup_enhanced_test(&env);
+
+    // Deactivate user A — their username "buyer" is released
+    onboarding.deactivate_profile(&user_a);
+
+    // User B claims the now-released username
+    let user_b = Address::generate(&env);
+    onboarding.onboard_user(&user_b, &String::from_str(&env, "buyer"), &UserRole::Buyer);
+
+    // User A attempts reactivation — must panic because username is taken
+    onboarding.reactivate_profile(&user_a);
 }
