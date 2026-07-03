@@ -6,7 +6,6 @@ use soroban_sdk::{
     token, Address, Env,
     token, Address, Env, Vec,
 };
-use soroban_sdk::vec;
 
 const DEFAULT_MIN_RELEASE_WINDOW: u32 = 24 * 60 * 60; // 1 day
 const ONE_HOUR: u32 = 60 * 60;
