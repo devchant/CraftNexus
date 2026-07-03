@@ -100,11 +100,11 @@ fn test_create_escrow_success() {
     // Verify event
     let events = env.events().all();
     assert!(!events.is_empty(), "No events emitted");
-    let last_event = events.last();
-    assert_eq!(last_event.clone().unwrap().0, client.address);
+    let last_event = events.last().unwrap();
+    assert_eq!(last_event.0, client.address);
     // Topics: ["escrow_created", escrow_id]
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "escrow").into_val(&env),
@@ -112,7 +112,7 @@ fn test_create_escrow_success() {
         ]
     );
     // Verify payload
-    let event: EscrowEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let event: EscrowEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, order_id as u64);
     assert_eq!(event.action, EscrowAction::Created);
     assert_eq!(event.buyer, buyer);
@@ -264,7 +264,7 @@ fn test_dispute_escrow_success() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "escrow").into_val(&env),
@@ -272,7 +272,7 @@ fn test_dispute_escrow_success() {
         ]
     );
     // Verify payload
-    let event: EscrowEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let event: EscrowEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, 1);
     assert_eq!(event.action, EscrowAction::Disputed);
     assert_eq!(event.buyer, buyer);
@@ -675,8 +675,8 @@ fn test_update_platform_fee() {
     assert_eq!(client.get_platform_fee(), 800);
 
     let events = env.events().all();
-    let last_event = events.last();
-    let config_event: ConfigUpdatedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let last_event = events.last().unwrap();
+    let config_event: ConfigUpdatedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(
         config_event.field_name,
         Symbol::new(&env, "platform_fee_bps")
@@ -806,14 +806,14 @@ fn test_set_artisan_fee_tier_emits_dedicated_event() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "artisan_fee_tier_updated").into_val(&env),
             seller.clone().into_val(&env)
         ]
     );
-    let fee_event: ArtisanFeeTierUpdatedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let fee_event: ArtisanFeeTierUpdatedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(fee_event.artisan, seller);
     assert_eq!(fee_event.fee_bps, 750);
 }
@@ -1438,8 +1438,8 @@ fn test_set_min_escrow_amount_emits_config_event() {
     client.set_min_escrow_amount(&token_id, &1_00000);
 
     let events = env.events().all();
-    let last_event = events.last();
-    let config_event: ConfigUpdatedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let last_event = events.last().unwrap();
+    let config_event: ConfigUpdatedEvent = last_event.2.try_into_val(&env).unwrap();
 
     assert_eq!(
         config_event.field_name,
@@ -2011,6 +2011,37 @@ fn test_reentrancy_guard_prevents_recursive_call() {
 }
 
 #[test]
+fn test_reentrancy_guard_blocks_release_and_refund_entrypoints() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &100_000_000);
+    client.create_escrow(&buyer, &seller, &token_id, &20_000_000, &1, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &20_000_000, &2, &None);
+
+    env.as_contract(&client.address, || {
+        env.storage().temporary().set(&DataKey::ReentryGuard, &true);
+    });
+
+    let release_ids = vec![&env, 1u32];
+    let batch_result = client.try_release_batch_funds(&1u64, &release_ids, &buyer);
+    assert!(batch_result.is_err());
+
+    env.as_contract(&client.address, || {
+        env.storage().temporary().remove(&DataKey::ReentryGuard);
+        env.storage().temporary().set(&DataKey::ReentryGuard, &true);
+    });
+
+    let refund_result = client.try_refund(&2u64);
+    assert!(refund_result.is_err());
+
+    env.as_contract(&client.address, || {
+        env.storage().temporary().remove(&DataKey::ReentryGuard);
+    });
+}
+
+#[test]
 fn test_reentrancy_guard_cleared_after_success() {
     let env = Env::default();
     env.mock_all_auths();
@@ -2023,6 +2054,65 @@ fn test_reentrancy_guard_cleared_after_success() {
     client.release_funds(&1);
 
     // The guard should be gone
+    env.as_contract(&client.address, || {
+        assert!(!env.storage().temporary().has(&DataKey::ReentryGuard));
+    });
+}
+
+#[test]
+fn test_reentrancy_guard_cleared_after_batch_create_error() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &100_000_000);
+
+    let invalid_params = vec![
+        &env,
+        EscrowCreateParams {
+            buyer: buyer.clone(),
+            seller: seller.clone(),
+            token: token_id.clone(),
+            amount: 0,
+            order_id: 100,
+            release_window: Some(3600),
+            ipfs_hash: None,
+            metadata_hash: None,
+        },
+    ];
+
+    let result = client.try_create_batch_escrow(&1u64, &invalid_params);
+    assert!(result.is_err());
+
+    client.create_escrow(&buyer, &seller, &token_id, &50_000_000, &101, &None);
+    let escrow = client.get_escrow(&101);
+    assert_eq!(escrow.status, EscrowStatus::Active);
+
+    env.as_contract(&client.address, || {
+        assert!(!env.storage().temporary().has(&DataKey::ReentryGuard));
+    });
+}
+
+#[test]
+fn test_reentrancy_guard_cleared_after_batch_release_error() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let (client, buyer, seller, token_id, token_admin, _, _) = setup_test(&env, true);
+
+    token_admin.mint(&buyer, &100_000_000);
+    client.create_escrow(&buyer, &seller, &token_id, &25_000_000, &100, &None);
+    client.create_escrow(&buyer, &seller, &token_id, &25_000_000, &101, &None);
+
+    client.release_funds(&100);
+
+    let order_ids = vec![&env, 100u32];
+    let result = client.try_release_batch_funds(&1u64, &order_ids, &buyer);
+    assert!(result.is_err());
+
+    client.release_funds(&101);
+    let escrow = client.get_escrow(&101);
+    assert_eq!(escrow.status, EscrowStatus::Released);
+
     env.as_contract(&client.address, || {
         assert!(!env.storage().temporary().has(&DataKey::ReentryGuard));
     });
@@ -2048,7 +2138,7 @@ fn test_extend_release_window_success() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "escrow").into_val(&env),
@@ -2056,7 +2146,7 @@ fn test_extend_release_window_success() {
         ]
     );
 
-    let event: EscrowEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let event: EscrowEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, 1);
     assert_eq!(event.action, EscrowAction::Extended);
     assert_eq!(event.buyer, buyer);
@@ -2821,14 +2911,15 @@ fn test_verify_metadata_reveal_authorized_emits_metadata_verified_event() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "metadata_verified").into_val(&env),
             (1u64).into_val(&env),
         ]
     );
-    let event: MetadataVerifiedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+
+    let event: MetadataVerifiedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(event.order_id, 1);
     assert_eq!(event.verifier, buyer);
     assert_eq!(event.timestamp, 1711368000);
@@ -2845,7 +2936,7 @@ fn test_set_paused_emits_platform_status_events() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "platform_paused").into_val(&env),
@@ -2853,7 +2944,7 @@ fn test_set_paused_emits_platform_status_events() {
         ]
     );
 
-    let paused_event: PlatformPausedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let paused_event: PlatformPausedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(paused_event.initiator, admin.clone());
     assert_eq!(paused_event.timestamp, 1711368000);
 
@@ -2862,7 +2953,7 @@ fn test_set_paused_emits_platform_status_events() {
     let events = env.events().all();
     let last_event = events.last().unwrap();
     assert_eq!(
-        last_event.clone().unwrap().1,
+        last_event.1,
         vec![
             &env,
             Symbol::new(&env, "platform_unpaused").into_val(&env),
@@ -2870,7 +2961,7 @@ fn test_set_paused_emits_platform_status_events() {
         ]
     );
 
-    let unpaused_event: PlatformUnpausedEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
+    let unpaused_event: PlatformUnpausedEvent = last_event.2.try_into_val(&env).unwrap();
     assert_eq!(unpaused_event.initiator, admin);
     assert_eq!(unpaused_event.timestamp, 1711368000);
 }

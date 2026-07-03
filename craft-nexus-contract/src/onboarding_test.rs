@@ -1,5 +1,25 @@
+use super::decimal_test_token::{DecimalTestToken, DecimalTestTokenClient};
 use super::*;
 use soroban_sdk::{testutils::Address as _, token, Address, Bytes, Env, String, Symbol};
+
+fn register_decimal_test_token(env: &Env, decimals: u32) -> Address {
+    let admin = Address::generate(env);
+    let contract_id = env.register_contract(None, DecimalTestToken);
+    DecimalTestTokenClient::new(env, &contract_id).initialize(&admin, &decimals);
+    contract_id
+}
+
+const AUTO_VERIFY_VOLUME_THRESHOLD: i128 = 10_000_000_000;
+const AUTO_VERIFY_ESCROW_THRESHOLD: u32 = 5;
+
+fn string_to_bytes(env: &Env, s: &soroban_sdk::String) -> Bytes {
+    let mut buf = [0u8; 128];
+    let len = s.len() as usize;
+    s.copy_into_slice(&mut buf[..len]);
+    let mut b = Bytes::new(env);
+    b.extend_from_slice(&buf[..len]);
+    b
+}
 
 fn setup_test(env: &Env) -> (OnboardingContractClient<'static>, Address) {
     let contract_id = env.register_contract(None, OnboardingContract);
@@ -2356,5 +2376,4 @@ fn test_set_verification_thresholds_unauthorized_rejected() {
     let env = Env::default();
     let (client, _) = setup_test(&env);
     client.set_verification_thresholds(&10u32, &5_000_000_000i128);
-}
 }
