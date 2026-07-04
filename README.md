@@ -1,10 +1,12 @@
-# 🎨 CraftNexus: Decentralized Artisanal Marketplace
+# CraftNexus: Decentralized Artisanal Marketplace
 
 CraftNexus is a modern, decentralized web3 marketplace designed for artisans to showcase and sell handcrafted goods and educational courses globally. The platform utilizes Stellar's **Soroban** smart contracts to secure transactions, handle user onboarding, and manage trustless escrow payments.
+https://github.com/user-attachments/assets/58de2761-6137-4f2b-a8a0-6c9c57ebea46
+
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 CraftNexus consists of two main components:
 
@@ -15,7 +17,7 @@ CraftNexus consists of two main components:
 
 ---
 
-## 📁 Repository Directory Structure
+## Repository Directory Structure
 
 ```text
 CraftNexus/
@@ -27,9 +29,9 @@ CraftNexus/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 💻 Prerequisites
+### Prerequisites
 
 Ensure you have the following installed on your machine:
 * [Node.js](https://nodejs.org/) (v18 or higher)
@@ -39,7 +41,7 @@ Ensure you have the following installed on your machine:
 
 ---
 
-## 📜 Smart Contract Setup & Execution
+## Smart Contract Setup & Execution
 
 ### 1. Installation & Environment Configuration
 Navigate to the contract directory and install the necessary WebAssembly (WASM) build target and the **Stellar CLI**:
@@ -96,7 +98,7 @@ Note the **Contract ID** outputted from the deployment command.
 
 ---
 
-## 🖥️ Frontend Setup & Running
+## Frontend Setup & Running
 
 ### 1. Install Dependencies
 Navigate to the frontend directory and install NPM packages:
