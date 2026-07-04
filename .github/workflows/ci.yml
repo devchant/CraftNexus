@@ -131,7 +131,7 @@ jobs:
             exit 0
           fi
           BEFORE=$(wc -c < "$WASM_FILE")
-          wasm-opt -Oz --output optimized.wasm "$WASM_FILE"
+          wasm-opt -Oz --enable-bulk-memory --enable-sign-ext --output optimized.wasm "$WASM_FILE"
           AFTER=$(wc -c < optimized.wasm)
           echo "Unoptimized: ${BEFORE} bytes"
           echo "Optimized:   ${AFTER} bytes"

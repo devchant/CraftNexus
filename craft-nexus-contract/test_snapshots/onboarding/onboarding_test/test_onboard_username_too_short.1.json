@@ -564,7 +564,6 @@
                   "val": {
                     "u32": 4
                   }
-                  "string": "caught panic 'Username too short' from contract function 'Symbol(obj#89)'"
                 },
                 {
                   "key": {

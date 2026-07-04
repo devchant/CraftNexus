@@ -564,7 +564,6 @@
                   "val": {
                     "u32": 6
                   }
-                  "string": "caught panic 'Invalid role: can only onboard as Buyer or Artisan' from contract function 'Symbol(obj#89)'"
                 },
                 {
                   "key": {

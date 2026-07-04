@@ -102,9 +102,12 @@ fn test_create_escrow_success() {
     assert!(!events.is_empty(), "No events emitted");
     let last_event = events.last().unwrap();
     assert_eq!(last_event.0, client.address);
+    let last_event = events.last();
+    assert_eq!(last_event.clone().unwrap().0, client.address);
+    assert_eq!(last_event.clone().unwrap().0, client.address);
     // Topics: ["escrow_created", escrow_id]
     assert_eq!(
-        last_event.1,
+        last_event.clone().unwrap().1,
         vec![
             &env,
             Symbol::new(&env, "escrow").into_val(&env),
@@ -112,7 +115,7 @@ fn test_create_escrow_success() {
         ]
     );
     // Verify payload
-    let event: EscrowEvent = last_event.2.try_into_val(&env).unwrap();
+    let event: EscrowEvent = last_event.unwrap().2.try_into_val(&env).unwrap();
     assert_eq!(event.escrow_id, order_id as u64);
     assert_eq!(event.action, EscrowAction::Created);
     assert_eq!(event.buyer, buyer);

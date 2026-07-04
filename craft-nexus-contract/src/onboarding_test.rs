@@ -1,5 +1,6 @@
 use super::decimal_test_token::{DecimalTestToken, DecimalTestTokenClient};
 use super::*;
+use crate::alloc::string::ToString;
 use soroban_sdk::{testutils::Address as _, token, Address, Bytes, Env, String, Symbol};
 
 fn register_decimal_test_token(env: &Env, decimals: u32) -> Address {
@@ -236,6 +237,8 @@ fn test_onboard_duplicate_username_case_insensitive() {
 
     client.onboard_user(&user1, &String::from_str(&env, "Alice"), &UserRole::Buyer);
     // "alice" should match "Alice" after normalization
+    let _result =
+        client.try_onboard_user(&user2, &String::from_str(&env, "alice"), &UserRole::Artisan);
     let result =
         client.try_onboard_user(&user2, &String::from_str(&env, "alice"), &UserRole::Artisan);
     assert!(result.is_err());

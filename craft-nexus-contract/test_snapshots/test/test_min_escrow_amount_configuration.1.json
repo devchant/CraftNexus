@@ -662,6 +662,12 @@
                     },
                     {
                       "key": {
+                        "symbol": "funding_deadline"
+                      },
+                      "val": "void"
+                    },
+                    {
+                      "key": {
                         "symbol": "id"
                       },
                       "val": {
@@ -3043,6 +3049,12 @@
                 },
                 {
                   "key": {
+                    "symbol": "funding_deadline"
+                  },
+                  "val": "void"
+                },
+                {
+                  "key": {
                     "symbol": "id"
                   },
                   "val": {
@@ -3203,6 +3215,12 @@
                   "val": {
                     "bool": true
                   }
+                },
+                {
+                  "key": {
+                    "symbol": "funding_deadline"
+                  },
+                  "val": "void"
                 },
                 {
                   "key": {

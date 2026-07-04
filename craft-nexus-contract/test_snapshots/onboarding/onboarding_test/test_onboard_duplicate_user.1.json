@@ -1024,7 +1024,6 @@
                   "val": {
                     "u32": 7
                   }
-                  "string": "caught panic 'User already onboarded' from contract function 'Symbol(obj#179)'"
                 },
                 {
                   "key": {

@@ -1024,7 +1024,6 @@
                   "val": {
                     "u32": 3
                   }
-                  "string": "caught panic 'Username already taken' from contract function 'Symbol(obj#183)'"
                 },
                 {
                   "key": {
