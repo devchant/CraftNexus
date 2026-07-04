@@ -2514,16 +2514,21 @@ impl CraftNexusContract {
     /// Requires a 7-day time lock after recovery is initiated to prevent abuse
     pub fn recover_admin_access(env: Env, recovered_admin: Address) -> Result<(), Error> {
         // Check if fallback admin exists and is authorized
-        let fallback = env
+        let fallback = match env
             .storage()
             .persistent()
             .get::<_, Address>(&DataKey::FallbackAdmin)
-            .ok_or(Error::Unauthorized)?;
+        {
+            Some(fallback) => fallback,
+            None => return Err(Error::AdminRecoveryFailed),
+        };
 
         fallback.require_auth();
 
         // Validate the recovery address
-        Self::validate_admin_address(&env, &recovered_admin)?;
+        if Self::validate_admin_address(&env, &recovered_admin).is_err() {
+            return Err(Error::AdminRecoveryFailed);
+        }
 
         // Check if recovery time lock has passed (#431 — TTL-friendly read)
         let recovery_time = Self::get_persistent_u64(&env, &DataKey::AdminRecoveryTime);
