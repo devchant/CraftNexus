@@ -305,10 +305,10 @@ pub enum DataKey {
     /// clients still see a meaningful value. Once a queue is fully
     /// drained the key is removed in `unstake_tokens`.
     ///
+    ///
     /// Admins may also call `purge_stake_cooldown_end` to remove a stale
     /// entry without touching the queue. See Issue #235 and
     /// `docs/deprecated-storage.md`.
-    StakeCooldownEnd(Address),
     /// Per-deposit stake queue for an artisan. Each entry represents an
     /// individual deposit and its cooldown end timestamp. This allows
     /// accurate tracking of staking timeframes when multiple deposits
@@ -3404,9 +3404,20 @@ impl CraftNexusContract {
         }
     }
 
-    /// Calculate platform fee for a given amount
-    fn calculate_fee(amount: i128, fee_bps: u32) -> i128 {
-        (amount * (fee_bps as i128)) / 10000
+    /// Calculate platform fee for a given amount.
+    fn try_calculate_fee(amount: i128, fee_bps: u32) -> Result<i128, Error> {
+        if amount < 0 {
+            return Err(Error::InvalidFee);
+        }
+
+        amount
+            .checked_mul(fee_bps as i128)
+            .and_then(|product| product.checked_div(10_000))
+            .ok_or(Error::InvalidFee)
+    }
+
+    fn calculate_fee(env: &Env, amount: i128, fee_bps: u32) -> i128 {
+        Self::try_calculate_fee(amount, fee_bps).unwrap_or_else(|err| env.panic_with_error(err))
     }
 
     /// Maintain the dual fee-token bookkeeping (#239).
@@ -3686,7 +3697,7 @@ impl CraftNexusContract {
 
         // Calculate platform fee using effective fee bps for the seller
         let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.seller.clone());
-        let fee_amount = Self::calculate_fee(escrow.amount, fee_bps);
+        let fee_amount = Self::calculate_fee(&env, escrow.amount, fee_bps);
         let seller_amount = escrow.amount - fee_amount;
 
         // Update status
@@ -3785,7 +3796,7 @@ impl CraftNexusContract {
 
         // Calculate platform fee
         let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.seller.clone());
-        let fee_amount = Self::calculate_fee(escrow.amount, fee_bps);
+        let fee_amount = Self::calculate_fee(&env, escrow.amount, fee_bps);
         let seller_amount = escrow.amount - fee_amount;
 
         // Update status
@@ -4328,7 +4339,7 @@ impl CraftNexusContract {
     fn release_funds_to_seller(env: &Env, escrow: &Escrow) {
         let config = Self::get_platform_config_internal(env);
         let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.seller.clone());
-        let fee_amount = Self::calculate_fee(escrow.amount, fee_bps);
+        let fee_amount = Self::calculate_fee(env, escrow.amount, fee_bps);
         let seller_amount = escrow.amount - fee_amount;
 
         let token_client = token::Client::new(env, &escrow.token);
@@ -4844,7 +4855,7 @@ impl CraftNexusContract {
     /// * `amount` - The escrow amount
     pub fn calculate_fee_for_amount(env: Env, amount: i128) -> i128 {
         let config = Self::get_platform_config_internal(&env);
-        Self::calculate_fee(amount, config.platform_fee_bps)
+        Self::calculate_fee(&env, amount, config.platform_fee_bps)
     }
 
     /// Calculate net amount seller will receive
@@ -5246,7 +5257,7 @@ impl CraftNexusContract {
 
                     // Calculate platform fee
                     let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.seller.clone());
-                    let fee_amount = Self::calculate_fee(escrow.amount, fee_bps);
+                    let fee_amount = Self::calculate_fee(&env, escrow.amount, fee_bps);
                     let seller_amount = escrow.amount - fee_amount;
 
                     // Update status
@@ -5436,7 +5447,7 @@ impl CraftNexusContract {
 
         // Now perform token transfers (external calls)
         let token_client = token::Client::new(&env, &escrow.token);
-        let fee_amount = Self::calculate_fee(escrow.amount, config.platform_fee_bps);
+        let fee_amount = Self::calculate_fee(&env, escrow.amount, config.platform_fee_bps);
 
         // Apply the configured fee policy
         match config.expired_dispute_fee_policy {
@@ -5565,18 +5576,24 @@ impl CraftNexusContract {
             env.panic_with_error(Error::StakeQueueFull);
         }
 
-        // Initialize cooldown only if artisan doesn't already have one (#237)
-        // This prevents cooldown reset gaming where artisans extend their cooldown by continuously staking
-        let cooldown_key = DataKey::StakeCooldownEnd(artisan.clone());
-        let existing_cooldown: u64 = env.storage().persistent().get(&cooldown_key).unwrap_or(0);
+        // Check queue capacity and current cooldown state (#237)
+        let count_key = DataKey::ArtisanStakeQueueCount(artisan.clone());
+        let current_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+
+        // Initialize cooldown only if artisan doesn't already have one.
+        // This prevents cooldown reset gaming where artisans extend their cooldown by continuously staking.
+        let existing_cooldown = if current_count > 0 {
+            let last_deposit_key = DataKey::ArtisanStakeQueueIndexed(artisan.clone(), current_count - 1);
+            let deposit: StakeDeposit = env.storage().persistent().get(&last_deposit_key).unwrap();
+            deposit.cooldown_end
+        } else {
+            0
+        };
 
         let cooldown_end = if existing_cooldown == 0 {
             // No existing cooldown, initialize new one
             let config = Self::get_platform_config_internal(&env);
-            let end = env.ledger().timestamp() + config.stake_cooldown as u64;
-            env.storage().persistent().set(&cooldown_key, &end);
-            Self::extend_persistent(&env, &cooldown_key);
-            end
+            env.ledger().timestamp() + config.stake_cooldown as u64
         } else {
             existing_cooldown
         };
@@ -5752,8 +5769,6 @@ impl CraftNexusContract {
             Self::extend_persistent(&env, &stake_key);
         } else {
             env.storage().persistent().remove(&stake_key);
-            let cooldown_key = DataKey::StakeCooldownEnd(artisan.clone());
-            env.storage().persistent().remove(&cooldown_key);
         }
 
         // Record unstake operation in history for audit trail (#237)
@@ -6048,7 +6063,7 @@ impl CraftNexusContract {
         // Deduct platform fee from seller's portion using effective fee bps
         let config = Self::get_platform_config_internal(&env);
         let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.seller.clone());
-        let seller_fee = Self::calculate_fee(seller_gross, fee_bps);
+        let seller_fee = Self::calculate_fee(&env, seller_gross, fee_bps);
         let seller_net = seller_gross - seller_fee;
         let total_platform_fee = refund_fee.saturating_add(seller_fee);
 
@@ -6159,7 +6174,7 @@ impl CraftNexusContract {
     /// Calculate refund-side fee charged against a proposed gross partial refund.
     fn calculate_partial_refund_fee(env: &Env, gross_refund_amount: i128) -> i128 {
         let refund_fee_bps = Self::get_refund_fee_bps(env);
-        Self::calculate_fee(gross_refund_amount, refund_fee_bps)
+        Self::calculate_fee(env, gross_refund_amount, refund_fee_bps)
     }
 
     /// Validate gross partial refund amount against escrow solvency including any
@@ -6300,7 +6315,7 @@ impl CraftNexusContract {
         // Calculate and transfer platform fee
         let config = Self::get_platform_config_internal(&env);
         let fee_bps = Self::get_effective_fee_bps(env.clone(), escrow.artisan.clone());
-        let fee_amount = Self::calculate_fee(cycle_amount, fee_bps);
+        let fee_amount = Self::calculate_fee(&env, cycle_amount, fee_bps);
         let artisan_amount = cycle_amount - fee_amount;
 
         if fee_amount > 0 {
